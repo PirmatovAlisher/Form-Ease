@@ -8,6 +8,6 @@ services:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
       - key: DATABASE_URL
-        value: postgresql://formeasedb_user:OyHthp7JJk83f4FvILbmq5cA0RoQfw6I@dpg-d15ido7fte5s7398lfo0-a.oregon-postgres.render.com/formeasedb
+        value: postgresql://formeasedb_user:OyHthp7JJk83f4FvILbmq5cA0RoQfw6I@dpg-d15ido7fte5s7398lfo0-a/formeasedb
       - key: ASPNETCORE_URLS
         value: http://*:$PORT
