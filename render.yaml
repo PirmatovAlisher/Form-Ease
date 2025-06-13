@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: formease-web
+    runtime: docker
+    database:
+      name: formease-db
+      postgresVersion: 15
+    env: docker
+    buildCommand: docker build -t formease .
+    startCommand: dotnet FormEase.UI.dll
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__Default
+        fromDatabase:
+          name: formease-db
+          property: connectionString
+      - key: ASPNETCORE_URLS
+        value: http://*:$PORT
