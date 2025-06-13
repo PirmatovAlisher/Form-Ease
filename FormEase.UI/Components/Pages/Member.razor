@@ -1,0 +1,13 @@
+﻿@page "/member"
+
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Roles = "Member")]
+
+<PageTitle>Auth</PageTitle>
+
+<h1>You have default "Member" Role</h1>
+
+<AuthorizeView>
+    Hello @context.User.Identity?.Name!
+</AuthorizeView>
