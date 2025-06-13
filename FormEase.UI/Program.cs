@@ -39,7 +39,11 @@ namespace FormEase.UI
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
             });
 
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            var connectionString =
+                Environment.GetEnvironmentVariable("DATABASE_URL")
+                ?? builder.Configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("No connection string configured!");
+
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString, x => x.MigrationsAssembly("FormEase.Infrastructure.PostgreSQL")));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
