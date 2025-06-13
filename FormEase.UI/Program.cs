@@ -2,6 +2,7 @@ using FormEase.Core.Models.Identity;
 using FormEase.Infrastructure.PostgreSQL.Data;
 using FormEase.UI.Components;
 using FormEase.UI.Components.Account;
+using FormEase.UI.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +41,10 @@ namespace FormEase.UI
             });
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("DefaultConnection not set");
-
+            if (!builder.Environment.IsDevelopment())
+            {
+                connectionString = ConnectionStringHandler.GetProductionConnectionString();
+            }
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString, x => x.MigrationsAssembly("FormEase.Infrastructure.PostgreSQL")));
