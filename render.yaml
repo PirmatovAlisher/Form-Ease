@@ -7,7 +7,7 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
-      - key: CONNECTION_STRING
-        value: postgresql://formeasedb_user:OyHthp7JJk83f4FvILbmq5cA0RoQfw6I@dpg-d15ido7fte5s7398lfo0-a.oregon-postgres.render.com/formeasedb
+      - key: ConnectionStrings__DefaultConnection
+        value: postgresql://formeasedb_user:OyHthp7JJk83f4FvILbmq5cA0RoQfw6I@dpg-d15ido7fte5s7398lfo0-a/formeasedb
       - key: ASPNETCORE_URLS
         value: http://*:$PORT
