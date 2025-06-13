@@ -40,7 +40,7 @@ namespace FormEase.UI
             });
 
             var connectionString =
-                Environment.GetEnvironmentVariable("DATABASE_URL")
+                Environment.GetEnvironmentVariable("CONNECTION_STRING")
                 ?? builder.Configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("No connection string configured!");
 
