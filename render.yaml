@@ -8,8 +8,6 @@ services:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
       - key: ConnectionStrings__DefaultConnection
-         fromDatabase:
-          name: FormEaseDb
-          property: connectionString
+        value: postgresql://formeasedb_4cnd_user:CtZlySLMspYe0gPa7Lx26l1vnZX7t18O@dpg-d1653g0dl3ps73a0hnf0-a/formeasedb_4cnd
       - key: ASPNETCORE_URLS
         value: http://*:$PORT
