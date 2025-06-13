@@ -43,7 +43,7 @@ namespace FormEase.UI
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("DefaultConnection not set");
             if (!builder.Environment.IsDevelopment())
             {
-                connectionString = ConnectionStringHandler.GetProductionConnectionString();
+                connectionString = ConnectionStringHandler.GetRenderConnectionString();
             }
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
