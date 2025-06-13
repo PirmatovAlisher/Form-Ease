@@ -2,18 +2,12 @@ services:
   - type: web
     name: formease-web
     runtime: docker
-    env: docker
     plan: free
-    region: ohio  # Choose your region
-    database:
-      name: formease-db
-      postgresVersion: 15
+    region: ohio # Must match DB region!
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
       - key: DATABASE_URL
-        fromDatabase:
-          name: formease-db
-          property: connectionString
+        value: postgresql://formeasedb_user:OyHthp7JJk83f4FvILbmq5cA0RoQfw6I@dpg-d15ido7fte5s7398lfo0-a.oregon-postgres.render.com/formeasedb
       - key: ASPNETCORE_URLS
         value: http://*:$PORT
