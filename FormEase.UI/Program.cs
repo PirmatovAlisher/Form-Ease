@@ -40,21 +40,8 @@ namespace FormEase.UI
                 options.LoginPath = "/Account/Login";
                 options.AccessDeniedPath = "/Account/AccessDenied";
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-
-                // Add these settings for production
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.Cookie.SameSite = SameSiteMode.Lax;
-                options.Cookie.HttpOnly = true;
-
-                // Essential for Render's load balancer
-                options.Events = new CookieAuthenticationEvents
-                {
-                    OnRedirectToLogin = context =>
-                    {
-                        context.Response.StatusCode = 401;
-                        return Task.CompletedTask;
-                    }
-                };
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Force HTTPS cookies
+                options.Cookie.SameSite = SameSiteMode.Lax; // Allow top-level navigation
             });
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("DefaultConnection not set");
