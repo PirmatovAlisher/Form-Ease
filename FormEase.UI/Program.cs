@@ -3,7 +3,9 @@ using FormEase.Infrastructure.PostgreSQL.Data;
 using FormEase.UI.Components;
 using FormEase.UI.Components.Account;
 using FormEase.UI.Extensions;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,6 +40,21 @@ namespace FormEase.UI
                 options.LoginPath = "/Account/Login";
                 options.AccessDeniedPath = "/Account/AccessDenied";
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+
+                // Add these settings for production
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SameSite = SameSiteMode.Lax;
+                options.Cookie.HttpOnly = true;
+
+                // Essential for Render's load balancer
+                options.Events = new CookieAuthenticationEvents
+                {
+                    OnRedirectToLogin = context =>
+                    {
+                        context.Response.StatusCode = 401;
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("DefaultConnection not set");
@@ -61,6 +78,12 @@ namespace FormEase.UI
 
             var app = builder.Build();
 
+            // Add this at the TOP of middleware pipeline
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
             using (var scope = app.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -79,10 +102,10 @@ namespace FormEase.UI
                 app.UseHsts();
             }
 
-            app.UseForwardedHeaders();
-            //app.UseHttpsRedirection();
-
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
