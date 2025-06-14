@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEase.Core", "FormEase.Core\FormEase.Core.csproj", "{D4B490F9-BAF9-41B2-89FB-490B1033D7C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FormEase.Core", "FormEase.Core\FormEase.Core.csproj", "{D4B490F9-BAF9-41B2-89FB-490B1033D7C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEase.Services", "FormEase.Services\FormEase.Services.csproj", "{D6F75473-3169-42ED-B3A9-B7412D32C7D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FormEase.Services", "FormEase.Services\FormEase.Services.csproj", "{D6F75473-3169-42ED-B3A9-B7412D32C7D7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEase.Infrastructure.PostgreSQL", "FormEase.Infrastructure.PostgreSQL\FormEase.Infrastructure.PostgreSQL.csproj", "{D5D19023-1838-465D-A726-F21A9D4AC05B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FormEase.Infrastructure.PostgreSQL", "FormEase.Infrastructure.PostgreSQL\FormEase.Infrastructure.PostgreSQL.csproj", "{D5D19023-1838-465D-A726-F21A9D4AC05B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEase.UI", "FormEase.UI\FormEase.UI.csproj", "{0B336628-4754-4E99-9774-47F5735F1DDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FormEase.UI", "FormEase.UI\FormEase.UI.csproj", "{0B336628-4754-4E99-9774-47F5735F1DDA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

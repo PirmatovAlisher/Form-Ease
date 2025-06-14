@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Radzen;
 
 namespace FormEase.UI
 {
@@ -18,6 +19,7 @@ namespace FormEase.UI
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddRadzenComponents();
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 

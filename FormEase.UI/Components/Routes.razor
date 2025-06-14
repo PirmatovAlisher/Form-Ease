@@ -2,7 +2,7 @@
 <CascadingAuthenticationState>
 	<Router AppAssembly="typeof(Program).Assembly">
 		<Found Context="routeData">
-			<AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+			<AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.FormEaseLayout)">
 				<NotAuthorized>
 					<RedirectToLogin />
 				</NotAuthorized>
@@ -11,3 +11,9 @@
 		</Found>
 	</Router>
 </CascadingAuthenticationState>
+
+
+<!-- Radzen services -->
+<RadzenDialog />
+<RadzenNotification />
+<RadzenContextMenu />
