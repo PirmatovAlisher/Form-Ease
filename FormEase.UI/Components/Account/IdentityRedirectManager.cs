@@ -9,7 +9,8 @@ namespace FormEase.UI.Components.Account
 
         private static readonly CookieBuilder StatusCookieBuilder = new()
         {
-            SameSite = SameSiteMode.Strict,
+            //SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             HttpOnly = true,
             IsEssential = true,
             MaxAge = TimeSpan.FromSeconds(5),
