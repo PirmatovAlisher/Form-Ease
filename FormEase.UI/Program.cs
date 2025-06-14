@@ -79,7 +79,8 @@ namespace FormEase.UI
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            app.UseForwardedHeaders();
+            //app.UseHttpsRedirection();
 
             app.UseStaticFiles();
 
