@@ -1,0 +1,22 @@
+﻿
+
+<RadzenStack Orientation="Orientation.Vertical" Gap="15px" AlignItems="AlignItems.Normal" JustifyContent="JustifyContent.Start">
+	<h3>Side Menu</h3>
+	<RadzenLink Path="/" Text="Home" />
+	<RadzenLink Path="counter" Text="Counter" />
+	<RadzenLink Path="/Account/Login" Text="Login" />
+	<RadzenLink Path="/Account/Register" Text="Register" />
+	<RadzenLink Path="/auth" Text="Auth" />
+	<RadzenLink Path="/member" Text="Member" />
+
+
+	<RadzenPanelMenu Style="width:100%">
+		<RadzenPanelMenuItem Text="Language" Icon="language">
+			<RadzenPanelMenuItem Text="Uz" Path="counter" Icon="account_circle"></RadzenPanelMenuItem>
+			<RadzenPanelMenuItem Text="Eng" Path="weather" Icon="perm_media"></RadzenPanelMenuItem>
+		</RadzenPanelMenuItem>
+	</RadzenPanelMenu>
+</RadzenStack>
+@code {
+
+}

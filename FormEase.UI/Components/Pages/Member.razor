@@ -1,6 +1,7 @@
 ﻿@page "/member"
 
 @using Microsoft.AspNetCore.Authorization
+@rendermode InteractiveServer
 
 @attribute [Authorize(Roles = "Member")]
 
@@ -11,3 +12,4 @@
 <AuthorizeView>
     Hello @context.User.Identity?.Name!
 </AuthorizeView>
+

@@ -1,38 +1,49 @@
-﻿@rendermode @(new InteractiveServerRenderMode(prerender : false))
+﻿@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject DialogService DialogService
 
-<RadzenHeader class="rz-display-flex justify-content-between px-1">
+<RadzenHeader>
 
-	<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
-		<RadzenSidebarToggle Click="@(OnToggleMenu)" />
-		<RadzenLabel Text="Form-Ease"/>
-	</RadzenStack>
+	<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
+		<RadzenButton Icon="menu" Click="@(OpenSideDialog)" Variant="Variant.Text" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Large" />
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+			<RadzenTextBox @bind-Value="@SearchTerm"
+						   @oninput="@((e) => UpdateSearchTerm(e.Value.ToString()))"
+						   Placeholder="Search..."
+						   Style="width: 100%;" />
 
-	<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem">
-		<RadzenButton Icon="forum" Variant="Variant.Text" ButtonStyle="ButtonStyle.Base" Size="ButtonSize.Medium" />
-		<RadzenAppearanceToggle />
-		<RadzenProfileMenu>
-			<Template>
-				<RadzenGravatar Email="user@example.com">
-				</RadzenGravatar>
-			</Template>
-			<ChildContent>
-				<RadzenProfileMenuItem Text="Buttons" Path="buttons" Icon="account_circle"></RadzenProfileMenuItem>
-				<RadzenProfileMenuItem Text="Menu" Path="menu" Icon="line_weight"></RadzenProfileMenuItem>
-				<RadzenProfileMenuItem Text="FileInput" Path="fileinput" Icon="attach_file"></RadzenProfileMenuItem>
-				<RadzenProfileMenuItem Text="Dialog" Path="dialog" Icon="perm_media"></RadzenProfileMenuItem>
-				<RadzenProfileMenuItem Text="Notification" Path="notification" Icon="announcement"></RadzenProfileMenuItem>
-			</ChildContent>
-		</RadzenProfileMenu>
+			<RadzenAppearanceToggle />
+			<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0rem">
+			</RadzenStack>
+
+		</RadzenStack>
 	</RadzenStack>
 
 </RadzenHeader>
 
-@code {
-	[Parameter]
-	public EventCallback<bool> ToggleMenu { get; set; }
 
-	private async Task OnToggleMenu()
+
+@code {
+
+	public string SearchTerm { get; set; }
+	public EventCallback<string> SearchTermChanged { get; set; }
+
+
+	private async Task UpdateSearchTerm(string value)
 	{
-		await ToggleMenu.InvokeAsync();
+		SearchTerm = value;
+	}
+
+	private void OpenSideDialog()
+	{
+		var options = new DialogOptions()
+			{
+				Left = "0px",
+				Width = "400px",
+				Height = "100%",
+				CloseDialogOnOverlayClick = true
+			};
+
+		DialogService.Open("", ds =>@<SideMenu />, options);
 	}
 }

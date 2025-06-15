@@ -1,16 +1,15 @@
 ﻿@inherits LayoutComponentBase
 
-<HeadContent>
-	<RadzenTheme Theme="material" />
-</HeadContent>
-<RadzenComponents />
-
+<RadzenComponents @rendermode="InteractiveServer" />
 <RadzenLayout>
-	<Header ToggleMenu="@ToggleSidebar" />
 
-	<Sidebar @bind-IsExpanded="@sidebarExpanded" />
+	@* <Header ToggleMenu="@ToggleSidebar" /> *@
+	<Header />
 
-	<RadzenBody Style="padding: 0px !important;">
+	@* <Sidebar @bind-IsExpanded="@sidebarExpanded" /> *@
+
+
+	<RadzenBody Style="margin-top: 30px !important;">
 
 		<div class="rz-p-4">
 			@Body
@@ -21,6 +20,7 @@
 	</RadzenBody>
 
 </RadzenLayout>
+
 
 @code {
 	private bool sidebarExpanded = true;

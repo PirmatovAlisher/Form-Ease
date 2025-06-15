@@ -1,16 +1,14 @@
 ﻿@using FormEase.UI.Components.Account.Shared
-<CascadingAuthenticationState>
-	<Router AppAssembly="typeof(Program).Assembly">
-		<Found Context="routeData">
-			<AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.FormEaseLayout)">
-				<NotAuthorized>
-					<RedirectToLogin />
-				</NotAuthorized>
-			</AuthorizeRouteView>
-			<FocusOnNavigate RouteData="routeData" Selector="h1" />
-		</Found>
-	</Router>
-</CascadingAuthenticationState>
+<Router AppAssembly="typeof(Program).Assembly">
+	<Found Context="routeData">
+		<AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.FormEaseLayout)">
+			<NotAuthorized>
+				<RedirectToLogin />
+			</NotAuthorized>
+		</AuthorizeRouteView>
+		<FocusOnNavigate RouteData="routeData" Selector="h1" />
+	</Found>
+</Router>
 
 
 <!-- Radzen services -->
