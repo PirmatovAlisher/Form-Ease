@@ -21,7 +21,10 @@ namespace FormEase.Infrastructure.PostgreSQL.Configurations
                 UserName = "pirmatovalisher2000@gmail.com",
                 NormalizedUserName = "PIRMATOVALISHER2000@GMAIL.COM",
                 ConcurrencyStamp = Guid.NewGuid().ToString(),
-                SecurityStamp = Guid.NewGuid().ToString()
+                SecurityStamp = Guid.NewGuid().ToString(),
+                IsBlocked = false,
+                FirstName = "Alisher",
+                LastName = "Pirmatov"
             };
             var adminPasswordHash = PasswordHash(admin, "Pirmatov_123");
             admin.PasswordHash = adminPasswordHash;
@@ -37,8 +40,11 @@ namespace FormEase.Infrastructure.PostgreSQL.Configurations
                 UserName = "pirmatovalisher@gmail.com",
                 NormalizedUserName = "PIRMATOVALISHER@GMAIL.COM",
                 ConcurrencyStamp = Guid.NewGuid().ToString(),
-                SecurityStamp = Guid.NewGuid().ToString()
-            };
+                SecurityStamp = Guid.NewGuid().ToString(),
+                IsBlocked = false,
+				FirstName = "Ali",
+				LastName = "Pandya"
+			};
             var memberPasswordHash = PasswordHash(member, "Pirmatov_123");
             member.PasswordHash = memberPasswordHash;
             builder.HasData(member);

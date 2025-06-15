@@ -1,13 +1,33 @@
-﻿
+﻿@using Microsoft.AspNetCore.Antiforgery
+
+@inject NavigationManager NavigationManager
 
 <RadzenStack Orientation="Orientation.Vertical" Gap="15px" AlignItems="AlignItems.Normal" JustifyContent="JustifyContent.Start">
 	<h3>Side Menu</h3>
 	<RadzenLink Path="/" Text="Home" />
 	<RadzenLink Path="counter" Text="Counter" />
-	<RadzenLink Path="/Account/Login" Text="Login" />
-	<RadzenLink Path="/Account/Register" Text="Register" />
 	<RadzenLink Path="/auth" Text="Auth" />
 	<RadzenLink Path="/member" Text="Member" />
+
+	<AuthorizeView Roles="Admin">
+		<RadzenLink Path="/admin/users" Text="Admin" />
+	</AuthorizeView>
+
+	<AuthorizeView>
+		<Authorized>
+			<form method="post" action="/Account/Logout">
+				@* This injects the antiforgery token *@
+				<input name="returnUrl" type="hidden" value="@currentUrl" />
+				<input name="__RequestVerificationToken" type="hidden" value="@antiforgeryToken" />
+				@* <button type="submit" class="btn btn-link">Logout</button> *@
+				<RadzenButton ButtonType="ButtonType.Submit" Text="Logout" Icon="logout" Variant="Variant.Flat" Shade="Shade.Lighter" ButtonStyle="ButtonStyle.Base" />
+			</form>
+		</Authorized>
+		<NotAuthorized>
+			<RadzenLink Path="/Account/Login" Text="Login" />
+			<RadzenLink Path="/Account/Register" Text="Register" />
+		</NotAuthorized>
+	</AuthorizeView>
 
 
 	<RadzenPanelMenu Style="width:100%">
@@ -17,6 +37,18 @@
 		</RadzenPanelMenuItem>
 	</RadzenPanelMenu>
 </RadzenStack>
-@code {
 
+@code {
+	private string? currentUrl;
+
+	[Inject] IAntiforgery Antiforgery { get; set; } = default!;
+	[Inject] IHttpContextAccessor HttpContextAccessor { get; set; } = default!;
+	private string antiforgeryToken = "";
+
+	protected override void OnInitialized()
+	{
+		var tokens = Antiforgery.GetAndStoreTokens(HttpContextAccessor.HttpContext!);
+		antiforgeryToken = tokens.RequestToken!;
+	}
 }
+

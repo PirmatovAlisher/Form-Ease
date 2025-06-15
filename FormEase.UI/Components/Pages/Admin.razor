@@ -1,0 +1,256 @@
+﻿@page "/admin/users"
+@using Microsoft.AspNetCore.Identity
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Admin")]
+@inject UserManager<ApplicationUser> UserManager
+@inject RoleManager<IdentityRole> RoleManager
+@inject IHttpContextAccessor IHttpContextAccessor
+@inject NavigationManager NavManager
+
+
+<PageTitle>Users</PageTitle>
+
+<div class="rz-m-12">
+	<RadzenBreadCrumb>
+		<RadzenBreadCrumbItem Path="/" Text="Index" />
+		<RadzenBreadCrumbItem Path="/admin/users" Text="Users" />
+	</RadzenBreadCrumb>
+</div>
+
+<RadzenCard Variant="Variant.Filled" Style="height: 750px">
+	<div class="rz-display-flex justify-content-between px-1">
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start">
+			<RadzenText TextStyle="Radzen.Blazor.TextStyle.H5">User Management</RadzenText>
+		</RadzenStack>
+	</div>
+	<br />
+	<RadzenRow JustifyContent="JustifyContent.SpaceBetween" class="rz-mb-3">
+		<!-- Filter Presets -->
+		<RadzenStack Orientation="Orientation.Horizontal" Gap="15px" class="rz-mb-3">
+			<RadzenButton Text="Block"
+						  Click="@(() => BlockUser(selectedUsers))"
+						  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Warning" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+
+			<RadzenButton Icon="lock_open"
+						  Click="@(() => UnblockUser(selectedUsers))"
+						  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Success" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+
+			<RadzenButton Text="ToggleAdmin"
+						  Click="@(() => ToggleAdmin(selectedUsers))"
+						  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Info" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+			<RadzenButton Icon="delete"
+						  Click="@(() => DeleteUser(selectedUsers))"
+						  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+
+		</RadzenStack>
+	</RadzenRow>
+
+	<RadzenDataGrid @ref="grid" TItem="ApplicationUser" Data="users" @bind-Value=@selectedUsers
+					AllowRowSelectOnRowClick="true" SelectionMode="DataGridSelectionMode.Multiple"
+					AllowSorting="true" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" PageSize="9">
+
+		<Columns>
+
+			<!-- Selection Check box -->
+			<RadzenDataGridColumn TItem="ApplicationUser" Sortable="false" Filterable="false" Width="25px">
+				<HeaderTemplate>
+					<RadzenCheckBox TValue="bool"
+									Value="@IsAllSelected"
+									Change="@(async _ => await ToggleSelectAll())" />
+				</HeaderTemplate>
+				<Template Context="user">
+					<RadzenCheckBox TValue="bool"
+									Value="@(selectedUsers.Contains(user))"
+									Change="@(_ => ToggleSelection(user))" />
+				</Template>
+			</RadzenDataGridColumn>
+
+			<!-- User Full Name -->
+			<RadzenDataGridColumn Property="@nameof(ApplicationUser.FirstName)" TItem="ApplicationUser" Title="Full Name" Width="60px">
+				<Template Context="user">
+					@user.FirstName @user.LastName
+				</Template>
+			</RadzenDataGridColumn>
+
+			<!-- User Email -->
+			<RadzenDataGridColumn Property="@nameof(ApplicationUser.Email)" TItem="ApplicationUser" Title="Email" Width="60px">
+				<Template Context="user">
+					@user.Email
+				</Template>
+			</RadzenDataGridColumn>
+
+			<!-- User Status -->
+			<RadzenDataGridColumn Property="@nameof(ApplicationUser.IsBlocked)" TItem="ApplicationUser" Title="Status" Width="60px">
+				<Template Context="user">
+					@if (user.IsBlocked)
+					{
+						<p>Blocked</p>
+					}
+					else
+					{
+						<p>Active</p>
+					}
+				</Template>
+			</RadzenDataGridColumn>
+
+			<!-- User Roles -->
+			<RadzenDataGridColumn TItem="ApplicationUser" Title="Roles" Width="60px">
+				<Template Context="user">
+					@if (userRoles.TryGetValue(user.Id, out var roles))
+					{
+						@string.Join(", ", roles)
+					}
+					else
+					{
+						<em>Loading...</em>
+					}
+				</Template>
+			</RadzenDataGridColumn>
+
+		</Columns>
+
+	</RadzenDataGrid>
+</RadzenCard>
+
+
+@code {
+
+	private List<ApplicationUser> users = new List<ApplicationUser>();
+	private Dictionary<string, List<string>> userRoles = new();
+	private ApplicationUser currentUser;
+
+	RadzenDataGrid<ApplicationUser> grid;
+	private IList<ApplicationUser> selectedUsers = new List<ApplicationUser>();
+
+	private bool IsAllSelected =>
+		users.Any() && selectedUsers.Count() == users.Count();
+
+	protected override async Task OnInitializedAsync()
+	{
+		currentUser = await UserManager.GetUserAsync(IHttpContextAccessor.HttpContext.User);
+		users = UserManager.Users.ToList();
+
+		// Load roles for all users
+		userRoles = await GetUserRoles(users);
+	}
+
+	private async Task ToggleSelectAll()
+	{
+		if (IsAllSelected)
+		{
+			selectedUsers = new List<ApplicationUser>();
+		}
+		else
+		{
+			selectedUsers = new List<ApplicationUser>(users);
+		}
+		await grid.Reload();
+		StateHasChanged();
+	}
+
+	private void ToggleSelection(ApplicationUser user)
+	{
+		if (selectedUsers.Contains(user))
+		{
+			selectedUsers.Remove(user);
+		}
+		else
+		{
+			selectedUsers.Add(user);
+		}
+
+		// Optional: Force grid refresh if needed
+		grid.Reload();
+		StateHasChanged();
+	}
+
+	private async Task BlockUser(IList<ApplicationUser> users)
+	{
+		foreach (var user in users)
+		{
+
+			user.IsBlocked = true;
+			await UserManager.UpdateAsync(user);
+
+			// If blocking current user
+			if (IsCurrentAdmin(user))
+			{
+				NavManager.NavigateTo("/Account/Logout", true);
+			}
+		}
+		selectedUsers = new List<ApplicationUser>();
+		await grid.Reload();
+		StateHasChanged();
+	}
+
+	private async Task UnblockUser(IList<ApplicationUser> users)
+	{
+		foreach (var user in users)
+		{
+
+			user.IsBlocked = false;
+			await UserManager.UpdateAsync(user);
+		}
+		selectedUsers = new List<ApplicationUser>();
+		await grid.Reload();
+		StateHasChanged();
+	}
+
+	private async Task ToggleAdmin(IList<ApplicationUser> users)
+	{
+		foreach (var user in users)
+		{
+
+			var isAdmin = await UserManager.IsInRoleAsync(user, "Admin");
+
+			if (isAdmin)
+			{
+				await UserManager.RemoveFromRoleAsync(user, "Admin");
+
+				// If user removed their own admin role
+				if (IsCurrentAdmin(user))
+				{
+					NavManager.NavigateTo("/", true);
+				}
+			}
+			else
+			{
+				await UserManager.AddToRoleAsync(user, "Admin");
+			}
+		}
+		selectedUsers = new List<ApplicationUser>();
+		NavManager.Refresh(true);
+	}
+
+	private async Task DeleteUser(IList<ApplicationUser> users)
+	{
+		foreach (var user in users)
+		{
+			// Prevent deleting yourself
+			if (IsCurrentAdmin(user)) return;
+
+			await UserManager.DeleteAsync(user);
+			users.Remove(user);
+		}
+		selectedUsers = new List<ApplicationUser>();
+		NavManager.Refresh(true);
+	}
+
+	private async Task<Dictionary<string, List<string>>> GetUserRoles(List<ApplicationUser> users)
+	{
+		var result = new Dictionary<string, List<string>>();
+
+		foreach (var user in users)
+		{
+			var roles = await UserManager.GetRolesAsync(user);
+			result[user.Id] = roles.ToList();
+		}
+
+		return result;
+	}
+
+	private bool IsCurrentAdmin(ApplicationUser user)
+	{
+		return currentUser.Id == user.Id;
+	}
+}

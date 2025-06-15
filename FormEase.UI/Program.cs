@@ -3,6 +3,7 @@ using FormEase.Infrastructure.PostgreSQL.Data;
 using FormEase.UI.Components;
 using FormEase.UI.Components.Account;
 using FormEase.UI.Extensions;
+using FormEase.UI.Middlewares;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -101,6 +102,8 @@ namespace FormEase.UI
 
 			app.UseAuthentication();
 			app.UseAuthorization();
+
+			app.UseMiddleware<BlockedUserMiddleware>();
 
 			app.UseAntiforgery();
 
