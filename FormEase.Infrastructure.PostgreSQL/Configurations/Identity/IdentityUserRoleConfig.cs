@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FormEase.Infrastructure.PostgreSQL.Configurations
+namespace FormEase.Infrastructure.PostgreSQL.Configurations.Identity
 {
     public class IdentityUserRoleConfig : IEntityTypeConfiguration<IdentityUserRole<string>>
     {
@@ -17,6 +17,21 @@ namespace FormEase.Infrastructure.PostgreSQL.Configurations
                 new IdentityUserRole<string>
                 {
                     UserId = Guid.Parse("2ADE9CC9-9152-4209-AE22-F2E9E57B09A7").ToString(),
+                    RoleId = Guid.Parse("D140EB54-ED6E-4FF2-9199-71FCBE722EF7").ToString(),
+                },
+                new IdentityUserRole<string>
+                {
+                    UserId = Guid.Parse("00000000-0000-0000-0000-000000000001").ToString(),
+                    RoleId = Guid.Parse("D140EB54-ED6E-4FF2-9199-71FCBE722EF7").ToString(),
+                },
+                new IdentityUserRole<string>
+                {
+                    UserId = Guid.Parse("00000000-0000-0000-0000-000000000002").ToString(),
+                    RoleId = Guid.Parse("D140EB54-ED6E-4FF2-9199-71FCBE722EF7").ToString(),
+                },
+                new IdentityUserRole<string>
+                {
+                    UserId = Guid.Parse("00000000-0000-0000-0000-000000000003").ToString(),
                     RoleId = Guid.Parse("D140EB54-ED6E-4FF2-9199-71FCBE722EF7").ToString(),
                 }
                 );

@@ -10,4 +10,8 @@
     <ProjectReference Include="..\FormEase.Infrastructure.PostgreSQL\FormEase.Infrastructure.PostgreSQL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
 </Project>

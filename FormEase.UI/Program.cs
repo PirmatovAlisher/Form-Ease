@@ -1,5 +1,6 @@
 using FormEase.Core.Models.Identity;
 using FormEase.Infrastructure.PostgreSQL.Data;
+using FormEase.Infrastructure.PostgreSQL.Extensions;
 using FormEase.UI.Components;
 using FormEase.UI.Components.Account;
 using FormEase.UI.Extensions;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Radzen;
 
 namespace FormEase.UI
@@ -26,7 +28,9 @@ namespace FormEase.UI
 			builder.Services.AddRazorComponents()
 				.AddInteractiveServerComponents();
 
-			builder.Services.AddCascadingAuthenticationState();
+			builder.Services.LoadInfrastructureLayerExtensions();
+			
+            builder.Services.AddCascadingAuthenticationState();
 			builder.Services.AddScoped<IdentityUserAccessor>();
 			builder.Services.AddScoped<IdentityRedirectManager>();
 			builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
@@ -38,9 +42,9 @@ namespace FormEase.UI
 				})
 				.AddIdentityCookies();
 
-            builder.Services.AddAuthorization();
+			builder.Services.AddAuthorization();
 
-            builder.Services.ConfigureApplicationCookie(options =>
+			builder.Services.ConfigureApplicationCookie(options =>
 			{
 				options.LoginPath = "/Account/Login";
 				options.AccessDeniedPath = "/Account/AccessDenied";
@@ -49,6 +53,8 @@ namespace FormEase.UI
 				options.Cookie.SameSite = SameSiteMode.Lax; // Allow top-level navigation
 
 			});
+
+			#region Database configuration
 
 			var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("DefaultConnection not set");
 			if (!builder.Environment.IsDevelopment())
@@ -59,6 +65,7 @@ namespace FormEase.UI
 			builder.Services.AddDbContext<ApplicationDbContext>(options =>
 				options.UseNpgsql(connectionString, x => x.MigrationsAssembly("FormEase.Infrastructure.PostgreSQL")));
 			builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+			#endregion
 
 			builder.Services.AddIdentityCore<ApplicationUser>(options =>
 			options.SignIn.RequireConfirmedAccount = false)
@@ -71,7 +78,7 @@ namespace FormEase.UI
 
 			var app = builder.Build();
 
-			// Add this at the TOP of middleware pipeline
+			// Required for deployment on Render
 			app.UseForwardedHeaders(new ForwardedHeadersOptions
 			{
 				ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto

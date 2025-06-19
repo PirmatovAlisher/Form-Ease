@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FormEase.Infrastructure.PostgreSQL.Configurations
+namespace FormEase.Infrastructure.PostgreSQL.Configurations.Identity
 {
     public class IdentityRoleConfig : IEntityTypeConfiguration<IdentityRole>
     {
