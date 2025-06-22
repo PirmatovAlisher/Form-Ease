@@ -10,39 +10,42 @@
 
 <PageTitle>Users</PageTitle>
 
-<div class="rz-m-12">
+<div class="rz-m-5">
 	<RadzenBreadCrumb>
-		<RadzenBreadCrumbItem Path="/" Text="Index" />
+		<RadzenBreadCrumbItem Path="/" Icon="home" />
 		<RadzenBreadCrumbItem Path="/admin/users" Text="Users" />
 	</RadzenBreadCrumb>
 </div>
 
-<RadzenCard Variant="Variant.Filled" Style="height: 750px">
+<RadzenCard Variant="Variant.Filled" Style="height: 800px">
 	<div class="rz-display-flex justify-content-between px-1">
 		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start">
 			<RadzenText TextStyle="Radzen.Blazor.TextStyle.H5">User Management</RadzenText>
 		</RadzenStack>
 	</div>
 	<br />
-	<RadzenRow JustifyContent="JustifyContent.SpaceBetween" class="rz-mb-3">
-		<!-- Filter Presets -->
-		<RadzenStack Orientation="Orientation.Horizontal" Gap="15px" class="rz-mb-3">
-			<RadzenButton Text="Block"
-						  Click="@(() => BlockUser(selectedUsers))"
-						  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Warning" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+	<RadzenRow JustifyContent="JustifyContent.SpaceBetween" class="rz-mb-5">
+		<RadzenCard Variant="Variant.Outlined" class="rz-border-radius-5">
 
-			<RadzenButton Icon="lock_open"
-						  Click="@(() => UnblockUser(selectedUsers))"
-						  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Success" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+			<!-- Filter Presets -->
+			<RadzenStack Orientation="Orientation.Horizontal" Gap="15px" >
+				<RadzenButton Text="Block"
+							  Click="@(() => BlockUser(selectedUsers))"
+							  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Warning" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
 
-			<RadzenButton Text="ToggleAdmin"
-						  Click="@(() => ToggleAdmin(selectedUsers))"
-						  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Info" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
-			<RadzenButton Icon="delete"
-						  Click="@(() => DeleteUser(selectedUsers))"
-						  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+				<RadzenButton Icon="lock_open"
+							  Click="@(() => UnblockUser(selectedUsers))"
+							  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Success" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
 
-		</RadzenStack>
+				<RadzenButton Text="ToggleAdmin"
+							  Click="@(() => ToggleAdmin(selectedUsers))"
+							  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Info" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+				<RadzenButton Icon="delete"
+							  Click="@(() => DeleteUser(selectedUsers))"
+							  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+
+			</RadzenStack>
+		</RadzenCard>
 	</RadzenRow>
 
 	<RadzenDataGrid @ref="grid" TItem="ApplicationUser" Data="users" @bind-Value=@selectedUsers

@@ -3,6 +3,7 @@ using System;
 using FormEase.Infrastructure.PostgreSQL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FormEase.Infrastructure.PostgreSQL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250619121629_AppModelTabelsCreation")]
+    partial class AppModelTabelsCreation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -104,7 +107,7 @@ namespace FormEase.Infrastructure.PostgreSQL.Migrations
                         {
                             Id = "bb49ce85-c5c9-41d9-9665-321d430b7e2e",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ffd521b9-235e-4407-9dc9-0d01886df395",
+                            ConcurrencyStamp = "ac5c633f-2e31-482d-84b4-e311ae08a006",
                             Email = "pirmatovalisher2000@gmail.com",
                             EmailConfirmed = true,
                             FirstName = "Alisher",
@@ -113,9 +116,9 @@ namespace FormEase.Infrastructure.PostgreSQL.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "PIRMATOVALISHER2000@GMAIL.COM",
                             NormalizedUserName = "PIRMATOVALISHER2000@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEP82KXkypBVtYbMLf7doA0QQBvf6X4WJ8+C8CNfRrSyKjRcemAcrTY2Qq3IY5DZ1Yw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEM3aUg38rsOHQlV3/45+e33ZwVotIEY90zNjv6+oT3umCMLWPBPse3vMlolKduXYyw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "f384c48d-4930-4fe8-b5fa-ca3604e85395",
+                            SecurityStamp = "3d085922-6f09-4a87-bc40-78dbb6d4b4fd",
                             TwoFactorEnabled = false,
                             UserName = "pirmatovalisher2000@gmail.com"
                         },
@@ -123,7 +126,7 @@ namespace FormEase.Infrastructure.PostgreSQL.Migrations
                         {
                             Id = "2ade9cc9-9152-4209-ae22-f2e9e57b09a7",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "34c1937c-7aac-4816-a3ec-9f4853dd3728",
+                            ConcurrencyStamp = "870d0886-3b40-42df-98f0-26d10793aabd",
                             Email = "pirmatovalisher@gmail.com",
                             EmailConfirmed = true,
                             FirstName = "Ali",
@@ -132,9 +135,9 @@ namespace FormEase.Infrastructure.PostgreSQL.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "PIRMATOVALISHER@GMAIL.COM",
                             NormalizedUserName = "PIRMATOVALISHER@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEAiYXSMbaXA+o3OMGXOzOZzQUzJvgAoYBpv0LyzAq5Qie8uxQ6AH8RGGdVeNuVrgJg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEP8PLNq/m6jk536GiKwdJSLjMa6REibK+dt6o+F28v44Jk/MiZLcuK1uSY+5Tr/nwg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "32bb104b-dcf5-4843-94ca-4f23c178b35f",
+                            SecurityStamp = "3ce36301-a0ed-4eef-957b-39d6408597d9",
                             TwoFactorEnabled = false,
                             UserName = "pirmatovalisher@gmail.com"
                         },
@@ -142,7 +145,7 @@ namespace FormEase.Infrastructure.PostgreSQL.Migrations
                         {
                             Id = "00000000-0000-0000-0000-000000000001",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "3b5b5384-2547-4627-bde4-ad828639712e",
+                            ConcurrencyStamp = "c3ec5d0c-bc65-4423-9167-418834eb4f8f",
                             Email = "admin@example.com",
                             EmailConfirmed = true,
                             FirstName = "Admin",
@@ -151,9 +154,9 @@ namespace FormEase.Infrastructure.PostgreSQL.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN@EXAMPLE.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEPtgSWSQzFOv4QbuQPVyhUTW+LGEirV+gCWJPgR27NesELDgLcpWfDh+WgDAg+Wtkw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEFArmMf5dThaDuX+UVdsSqFlIdYt9+nPhEGZd3ikojlRdJ+9lfWT6i3m/VjP3Cx9mg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "b7758838-ebaa-4d71-895b-14f569fa8d40",
+                            SecurityStamp = "dad87a9c-f3e5-4fb9-a97e-4ee59bf70453",
                             TwoFactorEnabled = false,
                             UserName = "admin@example.com"
                         },
@@ -161,7 +164,7 @@ namespace FormEase.Infrastructure.PostgreSQL.Migrations
                         {
                             Id = "00000000-0000-0000-0000-000000000002",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ac9ddcd7-32ee-474f-bb5e-9e720fe3f1f4",
+                            ConcurrencyStamp = "036d795f-6dac-47d0-8e53-463490dd95da",
                             Email = "creator@example.com",
                             EmailConfirmed = true,
                             FirstName = "John",
@@ -170,9 +173,9 @@ namespace FormEase.Infrastructure.PostgreSQL.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "CREATOR@EXAMPLE.COM",
                             NormalizedUserName = "CREATOR@EXAMPLE.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEM1RmcMoKRzvNrtBMUins2xr5XLqQ9eTsiiV2dfwJ36o6H1rcGft50u+/8fkHjGh2A==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJM/U33IaNIWKbB8WgBNn8fHxIBviz9z7yVVLdq84ATlD1yPausb/05ZJOvjK2EfSQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "310a1302-0f9b-4677-ab08-ca1f4d9c8d67",
+                            SecurityStamp = "3bc29d36-7cf2-4b48-b1c4-cf2563c778c2",
                             TwoFactorEnabled = false,
                             UserName = "creator@example.com"
                         },
@@ -180,7 +183,7 @@ namespace FormEase.Infrastructure.PostgreSQL.Migrations
                         {
                             Id = "00000000-0000-0000-0000-000000000003",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "86cefb80-9410-430d-9288-ccc91cdebf7c",
+                            ConcurrencyStamp = "60cf0812-be4f-41b7-8e43-5e4a7a64fa3d",
                             Email = "respondent@example.com",
                             EmailConfirmed = true,
                             FirstName = "Alice",
@@ -189,9 +192,9 @@ namespace FormEase.Infrastructure.PostgreSQL.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "RESPONDENT@EXAMPLE.COM",
                             NormalizedUserName = "RESPONDENT@EXAMPLE.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEApSZIwK0S5omcY/jF7qM0nsK35X97Viwcuu/4bPBEzp03KdVjwZT6nZGi28XGzDDg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEOdOQ57Ao/tLQHZrMBiRd980xQy0ysddsL/MAfxSb6tuOkS+wOtyvCbdntumtt/kkQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "6f82e709-99b9-45f5-9533-e6c49f3e6fa2",
+                            SecurityStamp = "04f184a8-479f-445a-9a9b-4aa9e16e0371",
                             TwoFactorEnabled = false,
                             UserName = "respondent@example.com"
                         });
@@ -367,6 +370,7 @@ namespace FormEase.Infrastructure.PostgreSQL.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("ImageUrl")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsPublic")
@@ -543,14 +547,14 @@ namespace FormEase.Infrastructure.PostgreSQL.Migrations
                         new
                         {
                             Id = "8815f0d6-db8e-4606-8acb-12844e7b796b",
-                            ConcurrencyStamp = "aad08463-f299-42da-986c-0c08b1162164",
+                            ConcurrencyStamp = "4f030001-fb1f-46bb-9376-5f08472a5dcd",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "d140eb54-ed6e-4ff2-9199-71fcbe722ef7",
-                            ConcurrencyStamp = "d8e3f585-8d48-4b97-b906-0f096fdec6a5",
+                            ConcurrencyStamp = "d82f1c3c-ba50-466a-83a0-7ac58a8e2227",
                             Name = "Member",
                             NormalizedName = "MEMBER"
                         });

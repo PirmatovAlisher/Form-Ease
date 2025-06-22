@@ -10,7 +10,7 @@ namespace FormEase.Core.Models.WebApplication.CoreModels
         public Guid Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public string ImageUrl { get; set; } // Cloud storage URL
+        public string? ImageUrl { get; set; }
         public bool IsPublic { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
@@ -24,6 +24,6 @@ namespace FormEase.Core.Models.WebApplication.CoreModels
         public List<Comment> Comments { get; set; } = new();
         public List<Like> Likes { get; set; } = new();
         public List<TemplateTag> TemplateTags { get; set; } = new();
-        public List<UserTemplateAccess> AllowedUsers { get; set; } = new(); // For non-public templates
+        public List<UserTemplateAccess> AllowedUsers { get; set; } = new();
     }
 }

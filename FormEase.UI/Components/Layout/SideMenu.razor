@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Antiforgery
 
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 
 <RadzenStack Orientation="Orientation.Vertical" Gap="15px" AlignItems="AlignItems.Normal" JustifyContent="JustifyContent.Start">
@@ -15,6 +16,8 @@
 
 	<AuthorizeView>
 		<Authorized>
+			<RadzenLink Path="@($"/user-page/{userId}")" Text="My Templates" />
+
 			<form method="post" action="/Account/Logout">
 				@* This injects the antiforgery token *@
 				<input name="returnUrl" type="hidden" value="@currentUrl" />
@@ -41,14 +44,24 @@
 @code {
 	private string? currentUrl;
 
+	private string? userId;
+
 	[Inject] IAntiforgery Antiforgery { get; set; } = default!;
 	[Inject] IHttpContextAccessor HttpContextAccessor { get; set; } = default!;
 	private string antiforgeryToken = "";
 
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
 		var tokens = Antiforgery.GetAndStoreTokens(HttpContextAccessor.HttpContext!);
 		antiforgeryToken = tokens.RequestToken!;
+
+		var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+
+		if (user.Identity?.IsAuthenticated == true)
+		{
+			userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+		}
 	}
 }
 

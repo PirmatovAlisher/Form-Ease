@@ -1,0 +1,171 @@
+﻿
+@inject ITemplateService TemplateService
+@inject NavigationManager NavManager
+
+
+<RadzenCard Variant="Variant.Filled" Style="height:730px" class="rz-shadow-6">
+	<div class="rz-display-flex justify-content-between px-1">
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start">
+			<RadzenText TextStyle="Radzen.Blazor.TextStyle.H5">Template Management</RadzenText>
+		</RadzenStack>
+	</div>
+	<br />
+	<RadzenRow JustifyContent="JustifyContent.SpaceBetween" class="rz-mb-5">
+		<RadzenCard Variant="Variant.Outlined" class="rz-border-radius-5">
+
+			<!-- Filter Presets -->
+			<RadzenStack Orientation="Orientation.Horizontal" Gap="15px">
+				<RadzenButton Text="New"
+							  Click="@(() => CreateTemp())"
+							  Icon="add_chart"
+							  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Success" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+
+				<RadzenButton Icon="edit" Disabled="@(selectedTemps.Count != 1)"
+							  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Warning" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+
+				<RadzenButton Click="@RemoveTemps"
+							  Icon="delete" Disabled="@(selectedTemps.Count == 0)"
+							  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+
+			</RadzenStack>
+		</RadzenCard>
+	</RadzenRow>
+
+	<RadzenDataGrid @ref="grid" TItem="TemplateListDto" Data="templates" @bind-Value=@selectedTemps
+					AllowRowSelectOnRowClick="true" SelectionMode="DataGridSelectionMode.Multiple"
+					AllowSorting="true" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" PageSize="9">
+
+		<Columns>
+
+			<!-- Selection Check box -->
+			<RadzenDataGridColumn TItem="TemplateListDto" Sortable="false" Filterable="false" Width="25px">
+				<HeaderTemplate>
+					<RadzenCheckBox TValue="bool"
+									Value="@IsAllSelected"
+									Change="@(async _ => await ToggleSelectAll())" />
+				</HeaderTemplate>
+				<Template Context="temp">
+					<RadzenCheckBox TValue="bool"
+									Value="@(selectedTemps.Contains(temp))"
+									Change="@(_ => ToggleSelection(temp))" />
+				</Template>
+			</RadzenDataGridColumn>
+
+			<!-- Template Title -->
+			<RadzenDataGridColumn Property="@nameof(TemplateListDto.Title)" TItem="TemplateListDto" Title="Title" Width="60px">
+				<Template Context="temp">
+					@temp.Title
+				</Template>
+			</RadzenDataGridColumn>
+
+			<!-- Template Description -->
+			<RadzenDataGridColumn Property="@nameof(TemplateListDto.Description)" TItem="TemplateListDto" Title="Description" Width="80px">
+				<Template Context="temp">
+					<RadzenMarkdown Text="@temp.Description"/>
+				</Template>
+			</RadzenDataGridColumn>
+
+			<!-- Template IsPublic -->
+			<RadzenDataGridColumn Property="@nameof(TemplateListDto.IsPublic)" TItem="TemplateListDto" Title="Status" Width="80px">
+				<Template Context="temp">
+					@if (@temp.IsPublic)
+					{
+						<p>Public</p>
+					}
+					else
+					{
+						<p>Private</p>
+					}
+
+				</Template>
+
+			</RadzenDataGridColumn>
+
+			<!-- Template Topic -->
+			<RadzenDataGridColumn TItem="TemplateListDto" Title="Topic" Width="80px">
+				<Template Context="temp">
+					@temp.Topic.Name
+				</Template>
+			</RadzenDataGridColumn>
+
+			<!-- Template Created Time -->
+			<RadzenDataGridColumn Property="@nameof(TemplateListDto.CreatedAt)" TItem="TemplateListDto" Title="Created" Width="60px">
+				<Template Context="temp">
+					@temp.CreatedAt.ToString("ddd MMM d, yyyy-H:mm")
+				</Template>
+			</RadzenDataGridColumn>
+
+			<!-- Template Updated Time -->
+			<RadzenDataGridColumn Property="@nameof(TemplateListDto.UpdatedAt)" TItem="TemplateListDto" Title="Updated" Width="60px">
+				<Template Context="temp">
+					@temp.UpdatedAt.ToString("ddd MMM d, yyyy-H:mm")
+				</Template>
+			</RadzenDataGridColumn>
+
+		</Columns>
+	</RadzenDataGrid>
+
+</RadzenCard>
+@code {
+
+	[Parameter]
+	public string? UserId { get; set; }
+
+	RadzenDataGrid<TemplateListDto> grid;
+
+	private List<TemplateListDto> templates = new();
+	private IList<TemplateListDto> selectedTemps = new List<TemplateListDto>();
+
+	private bool IsAllSelected =>
+		templates.Any() && selectedTemps.Count() == templates.Count();
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		templates = await TemplateService.GetAllCreatorTemplates(UserId);
+	}
+
+	private async Task CreateTemp()
+	{
+		NavManager.NavigateTo($"/create-template/{UserId}");
+	}
+
+	private async Task RemoveTemps()
+	{
+		var temIds = selectedTemps.Select(t => t.Id).ToList();
+
+		await TemplateService.RemoveTemplates(temIds);
+
+		NavManager.Refresh(true);
+	}
+
+	private async Task ToggleSelectAll()
+	{
+		if (IsAllSelected)
+		{
+			selectedTemps = new List<TemplateListDto>();
+		}
+		else
+		{
+			selectedTemps = new List<TemplateListDto>(templates);
+		}
+		await grid.Reload();
+		StateHasChanged();
+	}
+
+	private void ToggleSelection(TemplateListDto temp)
+	{
+		if (selectedTemps.Contains(temp))
+		{
+			selectedTemps.Remove(temp);
+		}
+		else
+		{
+			selectedTemps.Add(temp);
+		}
+
+		// Optional: Force grid refresh if needed
+		grid.Reload();
+		StateHasChanged();
+	}
+}

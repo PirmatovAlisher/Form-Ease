@@ -7,10 +7,11 @@ namespace FormEase.Core.Interfaces.WebApplication.CoreModels
         Task<Template> GetByIdAsync(Guid id);
         Task<Template> GetByIdWithDetailsAsync(Guid id);
         Task<List<Template>> GetPublicTemplatesAsync();
-        Task<List<Template>> GetByCreatorAsync(string creatorId);
+        Task<List<Template>> GetByCreatorIdWithDetailsAsync(string creatorId);
+        Task<List<Template>> GetByCreatorIdAsync(string creatorId);
         Task<List<Template>> GetAccessibleTemplatesAsync(string userId);
 
-        Task AddRangeAsync(List<Template> templates);
+        Task AddAsync(Template template);
         Task UpdateRangeAsync(List<Template> templates);
         Task DeleteRangeAsync(List<Guid> ids);
 

@@ -1,18 +1,15 @@
 using FormEase.Core.Models.Identity;
 using FormEase.Infrastructure.PostgreSQL.Data;
 using FormEase.Infrastructure.PostgreSQL.Extensions;
+using FormEase.Services.Extensions;
 using FormEase.UI.Components;
 using FormEase.UI.Components.Account;
 using FormEase.UI.Extensions;
 using FormEase.UI.Middlewares;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Radzen;
 
 namespace FormEase.UI
@@ -29,8 +26,24 @@ namespace FormEase.UI
 				.AddInteractiveServerComponents();
 
 			builder.Services.LoadInfrastructureLayerExtensions();
-			
-            builder.Services.AddCascadingAuthenticationState();
+			builder.Services.LoadServiceLayerExtensions();
+			#region Database configuration
+
+			var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("DefaultConnection not set");
+			if (!builder.Environment.IsDevelopment())
+			{
+				connectionString = ConnectionStringHandler.GetRenderConnectionString();
+			}
+
+			builder.Services.AddDbContext<ApplicationDbContext>(options =>
+				options.UseNpgsql(connectionString, x => x.MigrationsAssembly("FormEase.Infrastructure.PostgreSQL")));
+			builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+			#endregion
+
+			builder.Services.AddHttpClient();
+
+			#region Identity Services
+			builder.Services.AddCascadingAuthenticationState();
 			builder.Services.AddScoped<IdentityUserAccessor>();
 			builder.Services.AddScoped<IdentityRedirectManager>();
 			builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
@@ -54,18 +67,6 @@ namespace FormEase.UI
 
 			});
 
-			#region Database configuration
-
-			var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("DefaultConnection not set");
-			if (!builder.Environment.IsDevelopment())
-			{
-				connectionString = ConnectionStringHandler.GetRenderConnectionString();
-			}
-
-			builder.Services.AddDbContext<ApplicationDbContext>(options =>
-				options.UseNpgsql(connectionString, x => x.MigrationsAssembly("FormEase.Infrastructure.PostgreSQL")));
-			builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-			#endregion
 
 			builder.Services.AddIdentityCore<ApplicationUser>(options =>
 			options.SignIn.RequireConfirmedAccount = false)
@@ -73,6 +74,7 @@ namespace FormEase.UI
 				.AddEntityFrameworkStores<ApplicationDbContext>()
 				.AddSignInManager()
 				.AddDefaultTokenProviders();
+			#endregion
 
 			builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 

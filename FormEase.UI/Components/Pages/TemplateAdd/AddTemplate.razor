@@ -1,0 +1,525 @@
+﻿@page "/create-template/{UserId}"
+
+
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject ITemplateService TemplateService
+@inject IImageUploadService ImageUploadService
+@inject ITopicRepository TopicRepo
+@inject IUserService UserService
+@inject NotificationService NotificationService
+@inject NavigationManager NavManager
+@inject HttpClient HttpClient
+
+
+
+<PageTitle>Create Template</PageTitle>
+
+<RadzenRow class="rz-mb-5">
+	<RadzenColumn>
+		<div class="rz-m-2">
+			<RadzenBreadCrumb>
+				<RadzenBreadCrumbItem Path="/" Icon="home" />
+				<RadzenBreadCrumbItem Path="@($"/user-page/{UserId}")" Icon="home_storage" />
+				<RadzenBreadCrumbItem Icon="add" />
+			</RadzenBreadCrumb>
+		</div>
+	</RadzenColumn>
+	<RadzenColumn>
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
+			<RadzenCard Variant="Variant.Filled" class="rz-border-radius-10">
+
+				<RadzenStack Orientation="Orientation.Horizontal" Gap="15px">
+
+					@* <RadzenToggleButton @bind-Value=@template.IsPublic Icon="public_off" ToggleIcon="public" ButtonStyle="ButtonStyle.Base" class="rz-border-radius-7"
+					Shade="Shade.Light" ToggleShade="Shade.Lighter" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Primary icon button" }})" />
+
+					<RadzenButton Icon="person_add" class="rz-border-radius-5"
+					Variant="Variant.Filled" ButtonStyle="ButtonStyle.Info" Shade="Shade.Lighter" Size="ButtonSize.Medium" /> *@
+
+					<RadzenButton Text="Publish" Icon="upload_2" class="no-uppercase rz-border-radius-7"
+								  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Size="ButtonSize.Medium" />
+
+				</RadzenStack>
+			</RadzenCard>
+		</RadzenStack>
+	</RadzenColumn>
+</RadzenRow>
+
+
+<RadzenTemplateForm TItem="TemplateCreateDto" Submit="OnSubmit" OnInvalidSubmit="@OnInvalidSubmit" Data="template" Context="temp">
+	<RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center" Gap="1rem">
+		<DataAnnotationsValidator />
+
+		<!-- Image upload-->
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+			<RadzenCard Variant="Variant.Outlined" class="rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style="width: 40%; min-width: 300px;">
+
+				<RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Choose an image to upload</RadzenText>
+				<RadzenFormField>
+					<ChildContent>
+						<InputFile OnChange="OnInputFileChange" />
+					</ChildContent>
+				</RadzenFormField>
+				<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+					@if (previewUrl != null)
+					{
+						<img src="@previewUrl" alt="Preview" style="width: 100%;min-width:200px; margin-top:10px;" />
+					}
+					else
+					{
+						<RadzenIcon Icon="photo" Style="color: #FEA116; font-size:90px" class="rz-ms-2" />
+					}
+				</RadzenStack>
+			</RadzenCard>
+		</RadzenStack>
+
+		<!-- Title & Description -->
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+			<RadzenCard Variant="Variant.Outlined" class="rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style="width: 40%; min-width: 300px;">
+				<RadzenCard Variant="Variant.Filled" class=" rz-border-radius-2">
+					<RadzenStack Orientation="Orientation.Vertical">
+						<RadzenFormField AllowFloatingLabel="false" Variant="Variant.Text">
+							<ChildContent>
+								<RadzenTextBox Name="Title" @bind-Value=template.Title Placeholder="Title" class="valid" Style="font-size: 38px; padding: 0.5rem; width:70%;height: 48px;" />
+							</ChildContent>
+							<Helper>
+								<ValidationMessage For="() => template.Title" class="text-danger" />
+							</Helper>
+						</RadzenFormField>
+
+						<RadzenMarkdown Text="@template.Description" @bind-Value=template.Description Style="width:100%;" />
+
+						<RadzenFormField AllowFloatingLabel="false" Variant="Variant.Filled">
+							<ChildContent>
+								<RadzenTextArea Name="Description" Rows="3" @bind-Value=template.Description Placeholder="Description" Style="width:100%;" />
+							</ChildContent>
+							<Helper>
+								<ValidationMessage For="() => template.Description" class="text-danger" />
+							</Helper>
+						</RadzenFormField>
+					</RadzenStack>
+				</RadzenCard>
+			</RadzenCard>
+		</RadzenStack>
+
+		<!-- Topic Selection -->
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+			<RadzenCard Variant="Variant.Outlined" class="rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style="width: 40%; min-width: 300px;">
+				<RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Select Topic</RadzenText>
+				<RadzenFormField>
+					<ChildContent>
+						<RadzenDropDown @bind-Value="@template.TopicId" Data="@topics"
+										TextProperty="Name" ValueProperty="Id"
+										Placeholder="Select Topic" Style="width:100%" />
+					</ChildContent>
+					<Helper>
+						<ValidationMessage For="() => template.TopicId" class="text-danger" />
+					</Helper>
+				</RadzenFormField>
+			</RadzenCard>
+		</RadzenStack>
+
+		<!-- Is Public -->
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+			<RadzenCard Variant="Variant.Outlined" class="rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style="width: 40%; min-width: 300px;">
+				<RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Is Public Template</RadzenText>
+				<RadzenFormField>
+					<ChildContent>
+						<RadzenCheckBox @bind-Value="template.IsPublic" />
+					</ChildContent>
+				</RadzenFormField>
+			</RadzenCard>
+		</RadzenStack>
+
+		<!-- Allowed Users -->
+		@if (!template.IsPublic)
+		{
+			<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+				<RadzenCard Variant="Variant.Outlined" class="rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style="width: 40%; min-width: 300px;">
+					<RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Allowed Users</RadzenText>
+					<RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center" Gap="1rem">
+						<RadzenRow JustifyContent="JustifyContent.SpaceBetween">
+							<RadzenColumn>
+								<RadzenFormField>
+									<ChildContent>
+										<RadzenAutoComplete @bind-Value=selectedUserEmail
+															LoadData="OnUserSeach"
+															Change="OnUserSelected"
+															Data="suggestedUsers"
+															FilterDelay="1000"
+															TextProperty="@nameof(UserDisplayDto.Email)"
+															Style="width: 100%;min-width:250px;">
+											<Template>
+												@context.FirstName - @context.Email
+											</Template>
+										</RadzenAutoComplete>
+									</ChildContent>
+								</RadzenFormField>
+							</RadzenColumn>
+							<RadzenColumn>
+								<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
+									<RadzenButton Click="RemoveUserAccess"
+												  Disabled="@(selectedUsers.Count() == 0)" Icon="delete" class="rz-border-radius-7"
+												  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Light" Size="ButtonSize.Large" />
+								</RadzenStack>
+							</RadzenColumn>
+						</RadzenRow>
+
+						<RadzenDataGrid @ref="grid" TItem="UserDisplayDto" Data="accessedUsers" @bind-Value=@selectedUsers
+										AllowRowSelectOnRowClick="true" SelectionMode="DataGridSelectionMode.Multiple"
+										AllowSorting="true" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" PageSize="9">
+							<Columns>
+
+								<!-- Selection Check box -->
+								<RadzenDataGridColumn TItem="UserDisplayDto" Sortable="false" Filterable="false" Width="25px">
+									<HeaderTemplate>
+										<RadzenCheckBox TValue="bool"
+														Value="@IsAllSelected"
+														Change="@(async _ => await ToggleSelectAll())" />
+									</HeaderTemplate>
+									<Template Context="user">
+										<RadzenCheckBox TValue="bool"
+														Value="@(selectedUsers.Contains(user))"
+														Change="@(_ => ToggleSelection(user))" />
+									</Template>
+								</RadzenDataGridColumn>
+								<!-- User Full Name -->
+								<RadzenDataGridColumn Property="@nameof(UserDisplayDto.FirstName)" TItem="UserDisplayDto" Title="Full Name" Width="60px">
+									<Template Context="user">
+										@user.FirstName
+									</Template>
+								</RadzenDataGridColumn>
+
+								<!-- User Email -->
+								<RadzenDataGridColumn Property="@nameof(UserDisplayDto.Email)" TItem="UserDisplayDto" Title="Email" Width="60px">
+									<Template Context="user">
+										@user.Email
+									</Template>
+								</RadzenDataGridColumn>
+							</Columns>
+						</RadzenDataGrid>
+					</RadzenStack>
+				</RadzenCard>
+			</RadzenStack>
+		}
+
+		<!-- Questions-->
+		<RadzenDropZoneContainer TItem="MyTask" Data="data"
+								 ItemSelector="@ItemSelector"
+								 ItemRender="@OnItemRender"
+								 Drop="@OnDrop">
+			<ChildContent>
+				<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+					<RadzenDropZone Value="Status.NotStarted" class="rz-display-flex rz-flex-column rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style=" gap: 1rem;width: 40%; min-width: 300px;">
+						<ChildContent>
+							<RadzenText Text="Questions" class="rz-p-4" TextStyle="TextStyle.Subtitle2" />
+						</ChildContent>
+						<Footer>
+							<div>
+								<RadzenButton Size="ButtonSize.ExtraSmall" Icon="add" ButtonStyle="ButtonStyle.Success" Click="@CreateItem" />
+							</div>
+						</Footer>
+					</RadzenDropZone>
+				</RadzenStack>
+			</ChildContent>
+			<Template>
+
+				<RadzenCard Variant="Variant.Filled" class=" rz-border-radius-2">
+					<RadzenStack Orientation="Orientation.Vertical">
+						<strong>@context.Name</strong>
+						<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
+							<RadzenButton Size="ButtonSize.ExtraSmall" Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="@(() => DeleteItem(context))" />
+						</RadzenStack>
+					</RadzenStack>
+				</RadzenCard>
+
+			</Template>
+		</RadzenDropZoneContainer>
+
+		<!-- Submit Button-->
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+			<RadzenButton Text="Publish" ButtonType="ButtonType.Submit" Icon="upload_2" class="no-uppercase rz-border-radius-7"
+						  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Size="ButtonSize.Medium" />
+		</RadzenStack>
+	</RadzenStack>
+</RadzenTemplateForm>
+
+
+<!-- From Submit -->
+@code {
+
+	[Parameter]
+	public string? UserId { get; set; }
+
+	// TemplateDto for Template Creation
+	private TemplateCreateDto template = new();
+	private List<Topic> topics = new();
+
+	// List of users for granting access
+	private List<UserDisplayDto> suggestedUsers;
+	private List<string> selectedUserEmails = new();
+	private string selectedUserEmail;
+
+	// Display user Emails on Table /Grid
+	RadzenDataGrid<UserDisplayDto> grid;
+	private List<UserDisplayDto> accessedUsers = new();
+	private IList<UserDisplayDto> selectedUsers = new List<UserDisplayDto>();
+	private bool IsAllSelected =>
+		accessedUsers.Any() && selectedUsers.Count() == accessedUsers.Count();
+
+	protected override async Task OnInitializedAsync()
+	{
+		topics = await TopicRepo.GetAllAsync();
+	}
+
+
+	private async Task OnSubmit(TemplateCreateDto template)
+	{
+		template.CreatorId = UserId;
+		await TemplateService.AddAsync(template, accessedUsers);
+
+		// yield back to Blazor so it can send the next heartbeat
+		await InvokeAsync(StateHasChanged);
+
+		NavManager.NavigateTo($"/user-page/{UserId}");
+	}
+
+	private void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+	{
+		var errors = string.Join("\n", args.Errors);
+
+		NotificationService.Notify(new NotificationMessage
+			{
+				Style = "position: absolute; inset-inline-start: -1000px;",
+				Severity = NotificationSeverity.Error,
+				Duration = 10000,
+				SummaryContent = ns =>@<RadzenText TextStyle="TextStyle.H6">@errors</RadzenText>,
+		DetailContent = ns => @<RadzenButton Text="Clear" Click="@(args => ns.Messages.Clear())" />
+		});
+	}
+
+	// Searching user to grand access
+	private async Task OnUserSeach(dynamic term)
+	{
+		if (!string.IsNullOrWhiteSpace(term.Filter))
+		{
+			var accessedUserEmails = accessedUsers.Select(u => u.Email).ToList();
+			suggestedUsers = await UserService.SearchUsers(term.Filter, accessedUserEmails);
+			StateHasChanged();
+		}
+	}
+
+	// Granting user an access
+	private async Task OnUserSelected()
+	{
+		if (selectedUserEmail != null
+			&& suggestedUsers.Any(u => u.Email == selectedUserEmail)
+			&& !accessedUsers.Any(u => u.Email == selectedUserEmail))
+		{
+			selectedUserEmails.Add(selectedUserEmail);
+
+			// Populating grid data to display Dto model
+			var userDto = suggestedUsers.FirstOrDefault(u => u.Email == selectedUserEmail);
+			accessedUsers.Add(userDto);
+			suggestedUsers = new();
+			grid.Reload();
+			StateHasChanged();
+		}
+	}
+
+	// Accessed Users Display Table
+	private async Task ToggleSelectAll()
+	{
+		if (IsAllSelected)
+		{
+			selectedUsers = new List<UserDisplayDto>();
+		}
+		else
+		{
+			selectedUsers = new List<UserDisplayDto>(accessedUsers);
+		}
+		await grid.Reload();
+		StateHasChanged();
+	}
+
+	// Accessed Users Display Table
+	private void ToggleSelection(UserDisplayDto user)
+	{
+		if (selectedUsers.Contains(user))
+		{
+			selectedUsers.Remove(user);
+		}
+		else
+		{
+			selectedUsers.Add(user);
+		}
+
+		// Optional: Force grid refresh if needed
+		grid.Reload();
+		StateHasChanged();
+	}
+
+	private void RemoveUserAccess()
+	{
+		foreach (var user in selectedUsers)
+		{
+			accessedUsers.Remove(user);
+		}
+		grid.Reload();
+		StateHasChanged();
+	}
+}
+
+
+<!-- Image Upload -->
+@code
+{
+	private IBrowserFile selectedFile;
+	private string previewUrl;
+
+	private async Task OnInputFileChange(InputFileChangeEventArgs e)
+	{
+		selectedFile = e.File;
+		if (selectedFile != null)
+		{
+			previewUrl = null;
+			template.ImageUrl = null;
+
+			try
+			{
+				// Use the injected service to upload the image
+				template.ImageUrl = await ImageUploadService.UploadImageAsync(selectedFile);
+				previewUrl = template.ImageUrl;
+
+			}
+			catch (Exception ex)
+			{
+				NotificationService.Notify(new NotificationMessage
+					{
+						Style = "position: absolute; inset-inline-start: -1000px;",
+						Severity = NotificationSeverity.Error,
+						Duration = 10000,
+						SummaryContent = ns =>@<RadzenText TextStyle="TextStyle.H6">@ex.Message </RadzenText>,
+				DetailContent = ns => @<RadzenButton Text="Clear" Click="@(args => ns.Messages.Clear())" />
+				});
+			}
+		}
+	}
+}
+
+
+
+<!-- Question stack -->
+@code {
+
+	// Filter items by zone value
+	Func<MyTask, RadzenDropZone<MyTask>, bool> ItemSelector = (item, zone) => item.Status == (Status)zone.Value;
+
+	Func<RadzenDropZoneItemEventArgs<MyTask>, bool> CanDrop = request =>
+				{
+					// Allow item drop only in the same zone, in "Deleted" zone or in the next/previous zone.
+					return request.FromZone == request.ToZone;
+				};
+
+
+	void OnItemRender(RadzenDropZoneItemRenderEventArgs<MyTask> args)
+	{
+		// Customize item appearance
+		if (args.Item.Name == "Task2")
+		{
+			args.Attributes["draggable"] = "false";
+			args.Attributes["style"] = "cursor:not-allowed";
+			// args.Attributes["class"] = "rz-card rz-variant-flat rz-background-color-primary-lighter rz-color-on-primary-lighter";
+			args.Attributes["class"] = "rz-px-4";
+		}
+		else
+		{
+			// args.Attributes["class"] = "rz-card rz-variant-filled rz-background-color-primary-light rz-color-on-primary-light";
+			args.Attributes["class"] = "rz-px-4";
+		}
+
+		// Do not render item if deleted
+		args.Visible = args.Item.Status != Status.Deleted;
+	}
+
+	void OnDrop(RadzenDropZoneItemEventArgs<MyTask> args)
+	{
+		if (args.ToItem != null && args.ToItem != args.Item)
+		{
+			// reorder items in same zone or place the item at specific index in new zone
+			data.Remove(args.Item);
+			data.Insert(data.IndexOf(args.ToItem), args.Item);
+		}
+	}
+
+	IList<MyTask> data = Enumerable.Range(0, 5)
+			.Select(i =>
+				new MyTask()
+					{
+						Id = i,
+						Name = $"Task{i}",
+						Status = Status.NotStarted
+					})
+			.ToList();
+
+
+
+	private void CreateItem()
+	{
+		data.Add(new MyTask()
+			{
+				Id = data.Max(t => t.Id) + 1,
+				Name = "New Task",
+				Status = Status.NotStarted
+			});
+	}
+
+	private void DeleteItem(MyTask item)
+	{
+		item.Status = Status.Deleted;
+	}
+
+	public class MyTask
+	{
+		public int Id { get; set; }
+		public string Name { get; set; }
+		public Status Status { get; set; } = Status.NotStarted;
+	}
+
+	public enum Status
+	{
+		NotStarted,
+		Deleted
+	}
+
+
+}
+
+
+
+<style>
+	.rz-can-drop {
+		background-color: var(--rz-background-color-primary);
+	}
+
+	/* override Radzen's valid-input highlighting */
+	.valid.modified {
+		outline: none !important;
+	}
+</style>
+
+<style>
+	#uploadWithDragAndDrop {
+		/* left: 0; */
+		--rz-upload-button-bar-background-color: transparent;
+		--rz-upload-button-bar-padding: 0;
+	}
+
+		#uploadWithDragAndDrop .rz-fileupload-buttonbar .rz-fileupload-choose {
+			width: 100%;
+			text-align: center;
+			font-size: 16px;
+			padding: 70px 0;
+		}
+</style>

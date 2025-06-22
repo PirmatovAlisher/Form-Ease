@@ -1,0 +1,40 @@
+﻿@page "/user-page/{UserId}"
+
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject NavigationManager NavManager
+
+
+<PageTitle>User Templates</PageTitle>
+
+
+<div class="rz-m-5">
+	<RadzenBreadCrumb>
+		<RadzenBreadCrumbItem Path="/" Icon="home" />
+		<RadzenBreadCrumbItem Icon="home_storage" />
+	</RadzenBreadCrumb>
+</div>
+
+
+
+<RadzenTabs @bind-SelectedIndex=@selectedIndex class="no-uppercase-tabs">
+	<Tabs>
+		<RadzenTabsItem Text="Templates">
+
+			<UserTemplatesTab UserId="@UserId" />
+
+		</RadzenTabsItem>
+		<RadzenTabsItem Text="Forms">
+
+			<UserFormsTab />
+
+		</RadzenTabsItem>
+	</Tabs>
+</RadzenTabs>
+
+@code {
+	int selectedIndex = 0;
+
+	[Parameter]
+	public string? UserId { get; set; }
+}
