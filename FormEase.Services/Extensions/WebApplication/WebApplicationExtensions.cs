@@ -18,6 +18,8 @@ namespace FormEase.Services.Extensions.WebApplication
 			services.AddScoped<IImageUploadService, ImageUploadService>();
 			services.AddScoped<ITemplateService, TemplateService>();
 			services.AddScoped<IUserService, UserService>();
+			services.AddScoped<ITagService, TagService>();
+			services.AddScoped<ITemplateTagService, TemplateTagService>();
 
 			services.AddFluentValidationAutoValidation()
 				.AddFluentValidationClientsideAdapters(); ;

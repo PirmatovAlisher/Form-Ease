@@ -6,6 +6,7 @@
 @rendermode InteractiveServer
 @inject ITemplateService TemplateService
 @inject IImageUploadService ImageUploadService
+@inject ITagService TagService
 @inject ITopicRepository TopicRepo
 @inject IUserService UserService
 @inject NotificationService NotificationService
@@ -26,25 +27,25 @@
 			</RadzenBreadCrumb>
 		</div>
 	</RadzenColumn>
-	<RadzenColumn>
+	@* <RadzenColumn>
 		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
 			<RadzenCard Variant="Variant.Filled" class="rz-border-radius-10">
 
 				<RadzenStack Orientation="Orientation.Horizontal" Gap="15px">
 
-					@* <RadzenToggleButton @bind-Value=@template.IsPublic Icon="public_off" ToggleIcon="public" ButtonStyle="ButtonStyle.Base" class="rz-border-radius-7"
+					 <RadzenToggleButton @bind-Value=@template.IsPublic Icon="public_off" ToggleIcon="public" ButtonStyle="ButtonStyle.Base" class="rz-border-radius-7"
 					Shade="Shade.Light" ToggleShade="Shade.Lighter" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Primary icon button" }})" />
 
 					<RadzenButton Icon="person_add" class="rz-border-radius-5"
-					Variant="Variant.Filled" ButtonStyle="ButtonStyle.Info" Shade="Shade.Lighter" Size="ButtonSize.Medium" /> *@
+					Variant="Variant.Filled" ButtonStyle="ButtonStyle.Info" Shade="Shade.Lighter" Size="ButtonSize.Medium" /> 
 
-					<RadzenButton Text="Publish" Icon="upload_2" class="no-uppercase rz-border-radius-7"
-								  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Size="ButtonSize.Medium" />
+					 <RadzenButton Text="Publish" Icon="upload_2" class="no-uppercase rz-border-radius-7"
+								  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Size="ButtonSize.Medium" /> 
 
 				</RadzenStack>
 			</RadzenCard>
 		</RadzenStack>
-	</RadzenColumn>
+	</RadzenColumn> *@
 </RadzenRow>
 
 @if (errorMessage is not null)
@@ -157,7 +158,7 @@
 								<RadzenFormField>
 									<ChildContent>
 										<RadzenAutoComplete @bind-Value=selectedUserEmail
-															LoadData="OnUserSeach"
+															LoadData="OnUserSearch"
 															Change="OnUserSelected"
 															Data="suggestedUsers"
 															FilterDelay="1000"
@@ -218,40 +219,6 @@
 		}
 
 		<!-- Questions-->
-		@* <RadzenDropZoneContainer TItem="MyTask" Data="data"
-		ItemSelector="@ItemSelector"
-		ItemRender="@OnItemRender"
-		Drop="@OnDrop">
-		<ChildContent>
-		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
-		<RadzenDropZone Value="Status.NotStarted" class="rz-display-flex rz-flex-column rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style=" gap: 1rem;width: 40%; min-width: 300px;">
-		<ChildContent>
-		<RadzenText Text="Questions" class="rz-p-4" TextStyle="TextStyle.Subtitle2" />
-		</ChildContent>
-		<Footer>
-		<div>
-		<RadzenButton Size="ButtonSize.ExtraSmall" Icon="add" ButtonStyle="ButtonStyle.Success" Click="@CreateItem" />
-		</div>
-		</Footer>
-		</RadzenDropZone>
-		</RadzenStack>
-		</ChildContent>
-		<Template>
-
-		<RadzenCard Variant="Variant.Filled" class=" rz-border-radius-2">
-		<RadzenStack Orientation="Orientation.Vertical">
-		<strong>@context.Name</strong>
-		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
-		<RadzenButton Size="ButtonSize.ExtraSmall" Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="@(() => DeleteItem(context))" />
-		</RadzenStack>
-		</RadzenStack>
-		</RadzenCard>
-
-		</Template>
-		</RadzenDropZoneContainer> *@
-
-
-
 		<RadzenDropZoneContainer TItem="QuestionBox" Data="questions"
 								 ItemSelector="@QuestionSelector"
 								 ItemRender="@OnQuestionRender"
@@ -263,9 +230,9 @@
 							<RadzenText Text="Questions" class="rz-p-4" TextStyle="TextStyle.Subtitle2" />
 						</ChildContent>
 						<Footer>
-							<div>
-								<RadzenButton Size="ButtonSize.ExtraSmall" Icon="add" ButtonStyle="ButtonStyle.Success" Click="@CreateQuestion" />
-							</div>
+							<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
+								<RadzenButton Click="@CreateQuestion" Icon="add" Size="ButtonSize.Medium" ButtonStyle="ButtonStyle.Success" Variant="Variant.Filled" Shade="Shade.Light" class="rz-m-4 rz-border-radius-5" />
+							</RadzenStack>
 						</Footer>
 					</RadzenDropZone>
 				</RadzenStack>
@@ -385,6 +352,31 @@
 			</Template>
 		</RadzenDropZoneContainer>
 
+		<!-- Tags -->
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+			<RadzenCard Variant="Variant.Outlined" class="rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style="width: 40%; min-width: 300px;">
+				<RadzenText Text="Template Tags" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" />
+				<RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center" Gap="1rem">
+					<RadzenCard Variant="Variant.Filled" class=" rz-border-radius-2">
+						<div style="display: flex; flex-wrap: wrap;">
+							@foreach (var tag in templateTagNames)
+							{
+								<RadzenBadge Text="@tag" BadgeStyle="BadgeStyle.Info" Variant="Variant.Flat" IsPill="true" Shade="Shade.Lighter" class="no-uppercase" Style="font-size:15px; margin: 4px;" />
+							}
+						</div>
+					</RadzenCard>
+					<RadzenAutoComplete @bind-Value=selectedTagName
+										LoadData="OnTagSearch"
+										Change="OnTagSelected"
+										Data="suggestedTags"
+										FilterDelay="1000"
+										TextProperty="@nameof(Tag.Name)"
+										Placeholder="Tag name"
+										Style="width: 100%;min-width:250px;" />
+				</RadzenStack>
+			</RadzenCard>
+		</RadzenStack>
+
 		<!-- Submit Button-->
 		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
 			<RadzenButton Text="Publish" ButtonType="ButtonType.Submit" Icon="upload_2" class="no-uppercase rz-border-radius-7"
@@ -418,6 +410,12 @@
 	private bool IsAllSelected =>
 		accessedUsers.Any() && selectedUsers.Count() == accessedUsers.Count();
 
+	// List of Tags for assigning to template
+	private List<Tag> suggestedTags = new();
+	private List<string> templateTagNames = new();
+	private string selectedTagName;
+
+
 	protected override async Task OnInitializedAsync()
 	{
 		topics = await TopicRepo.GetAllAsync();
@@ -436,10 +434,9 @@
 
 		accessedUsers = template.IsPublic ? new() : accessedUsers;
 
-		var result = await TemplateService.AddAsync(template, tempQuestions, accessedUsers);
+		var result = await TemplateService.AddAsync(template, tempQuestions, accessedUsers, templateTagNames);
 		if (!result.IsValid)
 		{
-			// grab all the error messages:
 			var errors = result.Errors.Select(f => f.ErrorMessage);
 			errorMessage = string.Join(Environment.NewLine, errors);
 
@@ -462,12 +459,12 @@
 				Severity = NotificationSeverity.Error,
 				Duration = 10000,
 				SummaryContent = ns =>@<RadzenText TextStyle="TextStyle.H6">@errors</RadzenText>,
-		DetailContent = ns => @<RadzenButton Text="Clear" Click="@(args => ns.Messages.Clear())" />
+				DetailContent = ns => @<RadzenButton Text="Clear" Click="@(args => ns.Messages.Clear())" />
 		});
 	}
 
 	// Searching user to grand access
-	private async Task OnUserSeach(dynamic term)
+	private async Task OnUserSearch(dynamic term)
 	{
 		if (!string.IsNullOrWhiteSpace(term.Filter))
 		{
@@ -490,7 +487,7 @@
 			var userDto = suggestedUsers.FirstOrDefault(u => u.Email == selectedUserEmail);
 			accessedUsers.Add(userDto);
 			suggestedUsers = new();
-			grid.Reload();
+			await grid.Reload();
 			StateHasChanged();
 		}
 	}
@@ -536,6 +533,28 @@
 		grid.Reload();
 		StateHasChanged();
 	}
+
+	// Searching tag
+	private async Task OnTagSearch(dynamic term)
+	{
+		if (!string.IsNullOrWhiteSpace(term.Filter))
+		{
+			suggestedTags = await TagService.SearchTegByName(term.Filter, templateTagNames);
+			StateHasChanged();
+		}
+	}
+
+	private void OnTagSelected()
+	{
+		if (selectedTagName != null
+			&& suggestedTags.Any(t => t.Name == selectedTagName)
+			&& !templateTagNames.Any(n => n == selectedTagName))
+		{
+			templateTagNames.Add(selectedTagName);
+			suggestedTags = new();
+			StateHasChanged();
+		}
+	}
 }
 
 
@@ -555,7 +574,6 @@
 
 			try
 			{
-				// Use the injected service to upload the image
 				template.ImageUrl = await ImageUploadService.UploadImageAsync(selectedFile);
 				previewUrl = template.ImageUrl;
 
@@ -568,7 +586,7 @@
 						Severity = NotificationSeverity.Error,
 						Duration = 10000,
 						SummaryContent = ns =>@<RadzenText TextStyle="TextStyle.H6">@ex.Message </RadzenText>,
-				DetailContent = ns => @<RadzenButton Text="Clear" Click="@(args => ns.Messages.Clear())" />
+						DetailContent = ns => @<RadzenButton Text="Clear" Click="@(args => ns.Messages.Clear())" />
 				});
 			}
 		}
@@ -644,6 +662,12 @@
 		public Status Status { get; set; } = Status.NotStarted;
 	}
 
+	private enum Status
+	{
+		NotStarted,
+		Deleted
+	}
+
 	private void AddQuestionOpt(QuestionCreateDto question)
 	{
 		if (question.Options.Count < 10)
@@ -673,92 +697,6 @@
 	}
 
 }
-
-@code {
-
-	// Filter items by zone value
-	Func<MyTask, RadzenDropZone<MyTask>, bool> ItemSelector = (item, zone) => item.Status == (Status)zone.Value;
-
-	Func<RadzenDropZoneItemEventArgs<MyTask>, bool> CanDrop = request =>
-				{
-					// Allow item drop only in the same zone, in "Deleted" zone or in the next/previous zone.
-					return request.FromZone == request.ToZone;
-				};
-
-
-	void OnItemRender(RadzenDropZoneItemRenderEventArgs<MyTask> args)
-	{
-		// Customize item appearance
-		if (args.Item.Name == "Task2")
-		{
-			args.Attributes["draggable"] = "false";
-			args.Attributes["style"] = "cursor:not-allowed";
-			// args.Attributes["class"] = "rz-card rz-variant-flat rz-background-color-primary-lighter rz-color-on-primary-lighter";
-			args.Attributes["class"] = "rz-px-4";
-		}
-		else
-		{
-			// args.Attributes["class"] = "rz-card rz-variant-filled rz-background-color-primary-light rz-color-on-primary-light";
-			args.Attributes["class"] = "rz-px-4";
-		}
-
-		// Do not render item if deleted
-		args.Visible = args.Item.Status != Status.Deleted;
-	}
-
-	void OnDrop(RadzenDropZoneItemEventArgs<MyTask> args)
-	{
-		if (args.ToItem != null && args.ToItem != args.Item)
-		{
-			// reorder items in same zone or place the item at specific index in new zone
-			data.Remove(args.Item);
-			data.Insert(data.IndexOf(args.ToItem), args.Item);
-		}
-	}
-
-	IList<MyTask> data = Enumerable.Range(0, 5)
-			.Select(i =>
-				new MyTask()
-					{
-						Id = i,
-						Name = $"Task{i}",
-						Status = Status.NotStarted
-					})
-			.ToList();
-
-
-
-	private void CreateItem()
-	{
-		data.Add(new MyTask()
-			{
-				Id = data.Max(t => t.Id) + 1,
-				Name = "New Task",
-				Status = Status.NotStarted
-			});
-	}
-
-	private void DeleteItem(MyTask item)
-	{
-		item.Status = Status.Deleted;
-	}
-
-	private class MyTask
-	{
-		public int Id { get; set; }
-		public string Name { get; set; }
-		public Status Status { get; set; } = Status.NotStarted;
-	}
-
-	private enum Status
-	{
-		NotStarted,
-		Deleted
-	}
-
-
-}
-
 
 
 

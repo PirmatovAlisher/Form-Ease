@@ -8,6 +8,8 @@ namespace FormEase.Services.FluentValidation.WebApplication.TemplateValidation
 	{
 		public TemplateCreateValidator()
 		{
+			RuleFor(t => t.TopicId).NotEmpty().NotNull().WithMessage("Select a Topic");
+
 			RuleForEach(t => t.Questions)
 				.SetValidator(new QuestionCreateValidator());
 		}

@@ -16,15 +16,17 @@ namespace FormEase.Services.Services.Concrete.WebApplication
 		private readonly IValidator<TemplateCreateDto> _tempvalidator;
 		private readonly IValidator<QuestionCreateDto> _questionvalidator;
 		private readonly ITemplateRepository _templateRepo;
+		private readonly ITemplateTagService _templateTagService;
 		private readonly IMapper _mapper;
 
 
-		public TemplateService(ITemplateRepository templateRepo, IMapper mapper, IValidator<TemplateCreateDto> tempvalidator, IValidator<QuestionCreateDto> questionvalidator)
+		public TemplateService(ITemplateRepository templateRepo, IMapper mapper, IValidator<TemplateCreateDto> tempvalidator, IValidator<QuestionCreateDto> questionvalidator, ITemplateTagService templateTagService)
 		{
 			_templateRepo = templateRepo;
 			_mapper = mapper;
 			_tempvalidator = tempvalidator;
 			_questionvalidator = questionvalidator;
+			_templateTagService = templateTagService;
 		}
 
 		public async Task<List<TemplateListDto>> GetAllCreatorTemplates(string creatorId)
@@ -44,7 +46,7 @@ namespace FormEase.Services.Services.Concrete.WebApplication
 			}
 		}
 
-		public async Task<ValidationResult> AddAsync(TemplateCreateDto templateDto, List<QuestionCreateDto> questions, List<UserDisplayDto> users)
+		public async Task<ValidationResult> AddAsync(TemplateCreateDto templateDto, List<QuestionCreateDto> questions, List<UserDisplayDto> users, List<string> tagNames)
 		{
 			var result = await _tempvalidator.ValidateAsync(templateDto);
 
@@ -82,8 +84,10 @@ namespace FormEase.Services.Services.Concrete.WebApplication
 						TemplateId = template.Id
 					}).ToList();
 
-
 				await _templateRepo.AddAsync(template);
+
+				template.TemplateTags = await _templateTagService.CreateTemplateTagsAsync(template.Id, tagNames);
+
 				return result;
 			}
 			catch (Exception ex)

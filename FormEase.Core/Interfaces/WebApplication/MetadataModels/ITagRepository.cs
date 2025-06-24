@@ -4,6 +4,8 @@ namespace FormEase.Core.Interfaces.WebApplication.MetadataModels
 {
     public interface ITagRepository
     {
+        Task<Guid> GetTagIdByNameAsync(string name);
+
         Task<Tag?> GetByIdAsync(Guid id);
         Task<List<Tag>> GetAllAsync();
         Task<List<Tag>> GetByPrefixAsync(string prefix, int limit = 10);
