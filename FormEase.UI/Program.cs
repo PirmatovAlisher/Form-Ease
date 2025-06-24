@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Radzen;
+using FluentValidation;
 
 namespace FormEase.UI
 {

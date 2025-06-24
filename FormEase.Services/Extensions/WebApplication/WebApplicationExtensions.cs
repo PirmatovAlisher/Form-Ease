@@ -1,4 +1,9 @@
-﻿using FormEase.Services.Services.Abstract.Identity;
+﻿using FluentValidation;
+using FluentValidation.AspNetCore;
+using FormEase.Services.FluentValidation.WebApplication.QuestionOptionValidation;
+using FormEase.Services.FluentValidation.WebApplication.QuestionValidation;
+using FormEase.Services.FluentValidation.WebApplication.TemplateValidation;
+using FormEase.Services.Services.Abstract.Identity;
 using FormEase.Services.Services.Abstract.WebApplication;
 using FormEase.Services.Services.Concrete.Identity;
 using FormEase.Services.Services.Concrete.WebApplication;
@@ -13,6 +18,14 @@ namespace FormEase.Services.Extensions.WebApplication
 			services.AddScoped<IImageUploadService, ImageUploadService>();
 			services.AddScoped<ITemplateService, TemplateService>();
 			services.AddScoped<IUserService, UserService>();
+
+			services.AddFluentValidationAutoValidation()
+				.AddFluentValidationClientsideAdapters(); ;
+
+
+			services.AddValidatorsFromAssemblyContaining<TemplateCreateValidator>();
+			services.AddValidatorsFromAssemblyContaining<QuestionCreateValidator>();
+			services.AddValidatorsFromAssemblyContaining<QuestionOptionDtoValidator>();
 
 			return services;
 		}

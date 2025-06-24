@@ -1,6 +1,7 @@
 ﻿@page "/create-template/{UserId}"
 
 
+
 @attribute [Authorize]
 @rendermode InteractiveServer
 @inject ITemplateService TemplateService
@@ -46,6 +47,14 @@
 	</RadzenColumn>
 </RadzenRow>
 
+@if (errorMessage is not null)
+{
+	<RadzenStack class="rz-py-8 rz-px-12" JustifyContent="JustifyContent.Center">
+		<RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="false" Variant="Variant.Flat" Shade="Shade.Lighter">
+			@errorMessage
+		</RadzenAlert>
+	</RadzenStack>
+}
 
 <RadzenTemplateForm TItem="TemplateCreateDto" Submit="OnSubmit" OnInvalidSubmit="@OnInvalidSubmit" Data="template" Context="temp">
 	<RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center" Gap="1rem">
@@ -123,12 +132,16 @@
 		<!-- Is Public -->
 		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
 			<RadzenCard Variant="Variant.Outlined" class="rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style="width: 40%; min-width: 300px;">
-				<RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Is Public Template</RadzenText>
-				<RadzenFormField>
-					<ChildContent>
-						<RadzenCheckBox @bind-Value="template.IsPublic" />
-					</ChildContent>
-				</RadzenFormField>
+				<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+					<RadzenFormField>
+						<ChildContent>
+							<RadzenSwitch @bind-Value="template.IsPublic" />
+						</ChildContent>
+					</RadzenFormField>
+					<RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">
+						@(template.IsPublic ? "Template is Public" : "Template is Private")
+					</RadzenText>
+				</RadzenStack>
 			</RadzenCard>
 		</RadzenStack>
 
@@ -161,7 +174,7 @@
 								<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
 									<RadzenButton Click="RemoveUserAccess"
 												  Disabled="@(selectedUsers.Count() == 0)" Icon="delete" class="rz-border-radius-7"
-												  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Light" Size="ButtonSize.Large" />
+												  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Base" Shade="Shade.Light" Size="ButtonSize.Large" />
 								</RadzenStack>
 							</RadzenColumn>
 						</RadzenRow>
@@ -205,10 +218,44 @@
 		}
 
 		<!-- Questions-->
-		<RadzenDropZoneContainer TItem="MyTask" Data="data"
-								 ItemSelector="@ItemSelector"
-								 ItemRender="@OnItemRender"
-								 Drop="@OnDrop">
+		@* <RadzenDropZoneContainer TItem="MyTask" Data="data"
+		ItemSelector="@ItemSelector"
+		ItemRender="@OnItemRender"
+		Drop="@OnDrop">
+		<ChildContent>
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+		<RadzenDropZone Value="Status.NotStarted" class="rz-display-flex rz-flex-column rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style=" gap: 1rem;width: 40%; min-width: 300px;">
+		<ChildContent>
+		<RadzenText Text="Questions" class="rz-p-4" TextStyle="TextStyle.Subtitle2" />
+		</ChildContent>
+		<Footer>
+		<div>
+		<RadzenButton Size="ButtonSize.ExtraSmall" Icon="add" ButtonStyle="ButtonStyle.Success" Click="@CreateItem" />
+		</div>
+		</Footer>
+		</RadzenDropZone>
+		</RadzenStack>
+		</ChildContent>
+		<Template>
+
+		<RadzenCard Variant="Variant.Filled" class=" rz-border-radius-2">
+		<RadzenStack Orientation="Orientation.Vertical">
+		<strong>@context.Name</strong>
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
+		<RadzenButton Size="ButtonSize.ExtraSmall" Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="@(() => DeleteItem(context))" />
+		</RadzenStack>
+		</RadzenStack>
+		</RadzenCard>
+
+		</Template>
+		</RadzenDropZoneContainer> *@
+
+
+
+		<RadzenDropZoneContainer TItem="QuestionBox" Data="questions"
+								 ItemSelector="@QuestionSelector"
+								 ItemRender="@OnQuestionRender"
+								 Drop="@OnQuestionDrop">
 			<ChildContent>
 				<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
 					<RadzenDropZone Value="Status.NotStarted" class="rz-display-flex rz-flex-column rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style=" gap: 1rem;width: 40%; min-width: 300px;">
@@ -217,7 +264,7 @@
 						</ChildContent>
 						<Footer>
 							<div>
-								<RadzenButton Size="ButtonSize.ExtraSmall" Icon="add" ButtonStyle="ButtonStyle.Success" Click="@CreateItem" />
+								<RadzenButton Size="ButtonSize.ExtraSmall" Icon="add" ButtonStyle="ButtonStyle.Success" Click="@CreateQuestion" />
 							</div>
 						</Footer>
 					</RadzenDropZone>
@@ -227,10 +274,111 @@
 
 				<RadzenCard Variant="Variant.Filled" class=" rz-border-radius-2">
 					<RadzenStack Orientation="Orientation.Vertical">
-						<strong>@context.Name</strong>
-						<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
-							<RadzenButton Size="ButtonSize.ExtraSmall" Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="@(() => DeleteItem(context))" />
+						<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+							<RadzenIcon Icon="drag_handle" IconStyle="IconStyle.Base" />
 						</RadzenStack>
+						<RadzenRow>
+							<RadzenColumn>
+								<RadzenFormField AllowFloatingLabel="false" Variant="Variant.Text" Style="width:100%;">
+									<ChildContent>
+										<RadzenTextBox Name="Title" @bind-Value=@context.Question.Title Placeholder="Question Title" class="valid" Style="width:100%;" />
+									</ChildContent>
+									<Helper>
+										<ValidationMessage For="@(() => @context.Question.Title)" class="text-danger" />
+									</Helper>
+								</RadzenFormField>
+							</RadzenColumn>
+							<RadzenColumn>
+								<RadzenDropDown Data="@questionTypes" @bind-Value=@context.Question.Type Style="width:100%;" />
+							</RadzenColumn>
+						</RadzenRow>
+						<RadzenFormField AllowFloatingLabel="false" Variant="Variant.Text">
+							<ChildContent>
+								<RadzenTextBox Name="Title" @bind-Value=@context.Question.Description Placeholder="Question Description" class="valid" />
+							</ChildContent>
+							<Helper>
+								<ValidationMessage For="@(() => @context.Question.Description)" class="text-danger" />
+							</Helper>
+						</RadzenFormField>
+
+						@* <strong>@context.Question.Title</strong> *@
+						@if (context.Question.Type == QuestionType.Checkboxes)
+						{
+							<RadzenStack Orientation="Orientation.Vertical">
+								@foreach (var opt in context.Question.Options)
+								{
+									<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+										<RadzenCheckBox Disabled=true Value="false" />
+										<RadzenFormField AllowFloatingLabel="false" Variant="Variant.Text" Style="width:100%;">
+											<ChildContent>
+												<RadzenTextBox @bind-Value="@opt.Value" Placeholder="Write Option" class="valid" Style="width:80%;" />
+											</ChildContent>
+											<Helper>
+												<ValidationMessage For="@(() => opt.Value)" class="text-danger" />
+											</Helper>
+										</RadzenFormField>
+										<RadzenButton Click="@(() => RemoveQuestionOpt(opt ,context.Question))" Size="ButtonSize.Medium" Icon="close" Variant="Variant.Text" ButtonStyle="ButtonStyle.Base" class=" rz-border-radius-5" />
+									</RadzenStack>
+								}
+								<!-- Add Option-->
+								<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+									<RadzenCheckBox Disabled=true Value="false" />
+									<RadzenButton Text="Add an option" Click="@(() => AddQuestionOpt(context.Question))" Variant="Variant.Text" ButtonStyle="ButtonStyle.Base" class="no-uppercase" />
+								</RadzenStack>
+							</RadzenStack>
+						}
+						@if (context.Question.Type == QuestionType.Dropdown)
+						{
+							<RadzenStack Orientation="Orientation.Vertical">
+								@foreach (var opt in context.Question.Options)
+								{
+									<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+										<RadzenFormField AllowFloatingLabel="false" Variant="Variant.Text" Style="width:100%;">
+											<ChildContent>
+												<RadzenTextBox @bind-Value="@opt.Value" Placeholder="Write Option" class="valid" Style="width:80%;" />
+											</ChildContent>
+											<Helper>
+												<ValidationMessage For="@(() => opt.Value)" class="text-danger" />
+											</Helper>
+										</RadzenFormField>
+										<RadzenButton Click="@(() => RemoveQuestionOpt(opt ,context.Question))" Size="ButtonSize.Medium" Icon="close" Variant="Variant.Text" ButtonStyle="ButtonStyle.Base" class=" rz-border-radius-5" />
+									</RadzenStack>
+								}
+								<!-- Add Option-->
+								<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+									<RadzenButton Text="Add an option" Click="@(() => AddQuestionOpt(context.Question))" Variant="Variant.Text" ButtonStyle="ButtonStyle.Base" class="no-uppercase" />
+								</RadzenStack>
+							</RadzenStack>
+						}
+						<RadzenRow>
+							<RadzenColumn>
+								<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+									<RadzenText Text="Required" />
+									<RadzenFormField>
+										<ChildContent>
+											<RadzenCheckBox @bind-Value=@context.Question.IsRequired />
+										</ChildContent>
+									</RadzenFormField>
+								</RadzenStack>
+							</RadzenColumn>
+							<RadzenColumn>
+								<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+									<RadzenText Text="Show In Response List" />
+									<RadzenFormField>
+										<ChildContent>
+											<RadzenCheckBox @bind-Value=@context.Question.ShowInResponseList />
+										</ChildContent>
+									</RadzenFormField>
+								</RadzenStack>
+							</RadzenColumn>
+							<RadzenColumn>
+								<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right" AlignItems="AlignItems.Center">
+									<RadzenButton Click="@(() => RemoveQuestion(context))" Size="ButtonSize.Medium" Icon="delete" Variant="Variant.Filled" ButtonStyle="ButtonStyle.Base" Shade="Shade.Light" class=" rz-border-radius-5" />
+
+								</RadzenStack>
+
+							</RadzenColumn>
+						</RadzenRow>
 					</RadzenStack>
 				</RadzenCard>
 
@@ -256,6 +404,8 @@
 	private TemplateCreateDto template = new();
 	private List<Topic> topics = new();
 
+	private string? errorMessage;
+
 	// List of users for granting access
 	private List<UserDisplayDto> suggestedUsers;
 	private List<string> selectedUserEmails = new();
@@ -271,13 +421,30 @@
 	protected override async Task OnInitializedAsync()
 	{
 		topics = await TopicRepo.GetAllAsync();
+
+		questionTypes = Enum.GetValues(typeof(QuestionType))
+						.Cast<QuestionType>()
+						.ToList();
 	}
 
 
 	private async Task OnSubmit(TemplateCreateDto template)
 	{
 		template.CreatorId = UserId;
-		await TemplateService.AddAsync(template, accessedUsers);
+
+		var tempQuestions = questions.Select(q => q.Question).ToList();
+
+		accessedUsers = template.IsPublic ? new() : accessedUsers;
+
+		var result = await TemplateService.AddAsync(template, tempQuestions, accessedUsers);
+		if (!result.IsValid)
+		{
+			// grab all the error messages:
+			var errors = result.Errors.Select(f => f.ErrorMessage);
+			errorMessage = string.Join(Environment.NewLine, errors);
+
+			return;
+		}
 
 		// yield back to Blazor so it can send the next heartbeat
 		await InvokeAsync(StateHasChanged);
@@ -413,6 +580,102 @@
 <!-- Question stack -->
 @code {
 
+	private IList<QuestionBox> questions = new List<QuestionBox>()
+	{
+		new     QuestionBox {
+			Status = Status.NotStarted,
+			Question = new QuestionCreateDto()
+		}
+	};
+
+	private IEnumerable<QuestionType> questionTypes;
+
+	Func<QuestionBox, RadzenDropZone<QuestionBox>, bool> QuestionSelector = (item, zone) => item.Status == (Status)zone.Value;
+
+	Func<RadzenDropZoneItemEventArgs<QuestionBox>, bool> CanDropQuestion = request =>
+				{
+					// Allow item drop only in the same zone, in "Deleted" zone or in the next/previous zone.
+					return request.FromZone == request.ToZone;
+				};
+
+
+
+	private void OnQuestionRender(RadzenDropZoneItemRenderEventArgs<QuestionBox> args)
+	{
+		args.Attributes["class"] = "rz-px-4";
+
+		// Do not render item if deleted
+		args.Visible = args.Item.Status != Status.Deleted;
+
+		// storing question order
+		args.Item.Question.Order = questions.IndexOf(args.Item);
+	}
+
+	private void OnQuestionDrop(RadzenDropZoneItemEventArgs<QuestionBox> args)
+	{
+		if (args.ToItem != null && args.ToItem != args.Item)
+		{
+			questions.Remove(args.Item);
+			questions.Insert(questions.IndexOf(args.ToItem), args.Item);
+
+			// storing question order
+			args.Item.Question.Order = questions.IndexOf(args.ToItem);
+		}
+	}
+
+	private void CreateQuestion()
+	{
+		questions.Add(new QuestionBox
+			{
+				Status = Status.NotStarted,
+				Question = new QuestionCreateDto()
+			});
+	}
+
+	private void RemoveQuestion(QuestionBox question)
+	{
+		question.Status = Status.Deleted;
+		questions.Remove(question);
+	}
+
+	private class QuestionBox
+	{
+		public QuestionCreateDto Question { get; set; }
+		public Status Status { get; set; } = Status.NotStarted;
+	}
+
+	private void AddQuestionOpt(QuestionCreateDto question)
+	{
+		if (question.Options.Count < 10)
+		{
+
+			var questionOpt = new QuestionOptionDto
+				{
+					Id = Guid.NewGuid(),
+					Value = "Option",
+					QuestionId = question.Id
+				};
+
+			question.Options.Add(questionOpt);
+			StateHasChanged();
+		}
+	}
+
+	private void RemoveQuestionOpt(QuestionOptionDto opt, QuestionCreateDto question)
+	{
+		var questionOpt = question.Options.FirstOrDefault(o => o.Id == opt.Id);
+
+		if (questionOpt != null)
+		{
+			question.Options.Remove(questionOpt);
+			StateHasChanged();
+		}
+	}
+
+}
+
+@code {
+
 	// Filter items by zone value
 	Func<MyTask, RadzenDropZone<MyTask>, bool> ItemSelector = (item, zone) => item.Status == (Status)zone.Value;
 
@@ -480,14 +743,14 @@
 		item.Status = Status.Deleted;
 	}
 
-	public class MyTask
+	private class MyTask
 	{
 		public int Id { get; set; }
 		public string Name { get; set; }
 		public Status Status { get; set; } = Status.NotStarted;
 	}
 
-	public enum Status
+	private enum Status
 	{
 		NotStarted,
 		Deleted
@@ -495,6 +758,7 @@
 
 
 }
+
 
 
 

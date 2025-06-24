@@ -6,7 +6,6 @@
         Paragraph,
         Number,
         Checkboxes,
-        MultipleChoice,
         Dropdown
     }
 }

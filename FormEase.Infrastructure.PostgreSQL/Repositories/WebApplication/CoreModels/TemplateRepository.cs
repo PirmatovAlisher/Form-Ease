@@ -22,6 +22,7 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 		public async Task<Template> GetByIdWithDetailsAsync(Guid id)
 		{
 			var tempWithDetails = await _context.Templates
+				.AsNoTracking()
 				.Include(t => t.Creator)
 				.Include(t => t.Topic)
 				.Include(t => t.Questions)
@@ -38,6 +39,7 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 		public async Task<List<Template>> GetPublicTemplatesAsync()
 		{
 			var publicTemps = await _context.Templates
+				.AsNoTracking()
 				.Where(t => t.IsPublic == true)
 				.Include(t => t.Creator)
 				.Include(t => t.Topic)
@@ -52,6 +54,7 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 		public async Task<List<Template>> GetByCreatorIdWithDetailsAsync(string creatorId)
 		{
 			var creatorTemps = await _context.Templates
+				.AsNoTracking()
 				.Where(t => t.CreatorId == creatorId)
 				.Include(t => t.Topic)
 				.Include(t => t.TemplateTags)
@@ -64,8 +67,10 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 		public async Task<List<Template>> GetByCreatorIdAsync(string creatorId)
 		{
 			var creatorTemps = await _context.Templates
+				.AsNoTracking()
 				.Where(t => t.CreatorId == creatorId)
 				.Include(t => t.Topic)
+				.OrderByDescending(t => t.UpdatedAt)
 				.ToListAsync();
 
 			return creatorTemps;

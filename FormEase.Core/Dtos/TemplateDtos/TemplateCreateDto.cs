@@ -1,13 +1,13 @@
-﻿using FormEase.Core.Dtos.UserTemplateAccessDtos;
+﻿using FormEase.Core.Dtos.QuestionDtos;
+using FormEase.Core.Dtos.UserTemplateAccessDtos;
 using FormEase.Core.Models.WebApplication.AccessControlModels;
-using FormEase.Core.Models.WebApplication.CoreModels;
 using System.ComponentModel.DataAnnotations;
 
 namespace FormEase.Core.Dtos.TemplateDtos
 {
 	public class TemplateCreateDto
 	{
-		public Guid Id { get; set; }
+		public Guid Id { get; set; } = Guid.NewGuid();
 
 		[Required, MaxLength(200)]
 		public string Title { get; set; }
@@ -25,7 +25,7 @@ namespace FormEase.Core.Dtos.TemplateDtos
 		[Required]
 		public Guid TopicId { get; set; }
 
-		public List<Question> Questions { get; set; } = new();
+		public List<QuestionCreateDto> Questions { get; set; } = new();
 
 		public List<TemplateTag> TemplateTags { get; set; } = new();
 
