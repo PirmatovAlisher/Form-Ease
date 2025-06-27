@@ -1,7 +1,9 @@
-﻿using FormEase.Core.Interfaces.WebApplication.AccessControlModels;
+﻿using FluentValidation.Results;
+using FormEase.Core.Interfaces.WebApplication.AccessControlModels;
 using FormEase.Core.Interfaces.WebApplication.MetadataModels;
 using FormEase.Core.Models.WebApplication.AccessControlModels;
 using FormEase.Services.Services.Abstract.WebApplication;
+using Microsoft.EntityFrameworkCore;
 
 namespace FormEase.Services.Services.Concrete.WebApplication
 {
@@ -16,25 +18,59 @@ namespace FormEase.Services.Services.Concrete.WebApplication
 			_templateTagRepository = templateTagRepository;
 		}
 
-		public async Task<List<TemplateTag>> CreateTemplateTagsAsync(Guid templateId, List<string> tagNames)
+		public async Task<ValidationResult> ApplyTemplateTagChangesAsync(Guid templateId, List<string> tagNames)
 		{
-			var templateTags = new List<TemplateTag>();
+			var result = new ValidationResult();
 
-			foreach (var tag in tagNames)
+			try
 			{
-				var tagId = await _tagRepository.GetTagIdByNameAsync(tag);
-				var templateTag = new TemplateTag
+				var existingTemplateTags = await _templateTagRepository.GetByTemplateIdAsync(templateId);
+				var existingTagNames = existingTemplateTags.Select(tt => tt.Tag.Name).ToHashSet();
+
+				existingTemplateTags ??= new List<TemplateTag>();
+				existingTagNames ??= new HashSet<string>();
+
+				var tags = await _tagRepository.GetTagsByNameAsync(tagNames);
+
+
+				var toCreate = tags.Where(t => !existingTagNames.Contains(t.Name))
+					.Select(t => new TemplateTag
+					{
+						TagId = t.Id,
+						TemplateId = templateId
+					});
+
+				var toDelete = existingTemplateTags.Where(tt => !tagNames.Contains(tt.Tag.Name));
+
+
+				if (toCreate != null && toCreate.Any())
 				{
-					Id = Guid.NewGuid(),
-					TagId = tagId,
-					TemplateId = templateId
-				};
-				templateTags.Add(templateTag);
+					await _templateTagRepository.AddRangeAsync(toCreate);
+				}
+
+				if (toDelete != null && toDelete.Any())
+				{
+					await _templateTagRepository.RemoveRangeAsync(toDelete);
+				}
+			}
+			catch(DbUpdateConcurrencyException ex)
+			{
+				result.Errors.Add(new ValidationFailure
+				{
+					PropertyName = string.Empty,
+					ErrorMessage = "An error occurred while updating the template. Please try again."
+				});
+			}
+			catch (Exception ex)
+			{
+				result.Errors.Add(new ValidationFailure
+				{
+					PropertyName = string.Empty,
+					ErrorMessage = "An error occurred while updating the template. Please try again."
+				});
 			}
 
-			await _templateTagRepository.AddRangeAsync(templateTags);
-
-			return templateTags;
+			return result;
 		}
 	}
 }

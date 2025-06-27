@@ -4,9 +4,9 @@ using FormEase.Services.FluentValidation.WebApplication.QuestionValidation;
 
 namespace FormEase.Services.FluentValidation.WebApplication.TemplateValidation
 {
-	public class TemplateCreateValidator : AbstractValidator<TemplateCreateDto>
+	public class TemplateEditValidator : AbstractValidator<TemplateEditDto>
 	{
-		public TemplateCreateValidator()
+		public TemplateEditValidator()
 		{
 			RuleFor(t => t.Title).NotNull().NotEmpty();
 			RuleFor(t => t.Description).NotNull().NotEmpty();
@@ -17,6 +17,7 @@ namespace FormEase.Services.FluentValidation.WebApplication.TemplateValidation
 
 			RuleForEach(t => t.Questions)
 				.SetValidator(new QuestionValidator());
+
 		}
 	}
 }

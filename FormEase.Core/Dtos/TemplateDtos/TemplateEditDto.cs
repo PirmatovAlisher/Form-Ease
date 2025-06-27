@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FormEase.Core.Dtos.TemplateDtos
 {
-	public class TemplateCreateDto
+	public class TemplateEditDto
 	{
 		public Guid Id { get; set; }
 
@@ -16,9 +16,8 @@ namespace FormEase.Core.Dtos.TemplateDtos
 		public string Description { get; set; }
 
 		public string? ImageUrl { get; set; }
-
-
-		public bool IsPublic { get; set; } = true;
+		public bool IsPublic { get; set; }
+		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
 		public string CreatorId { get; set; }
 

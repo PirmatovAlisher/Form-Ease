@@ -4,9 +4,9 @@ namespace FormEase.Core.Dtos.QuestionOptionDtos
 {
 	public class QuestionOptionDto
 	{
-		public Guid Id { get; set; } = Guid.NewGuid();
+		public Guid Id { get; set; }
 
-		[Required]
+		[Required(ErrorMessage = "Question option value is required")]
 		public string Value { get; set; }
 
 		public Guid QuestionId { get; set; }

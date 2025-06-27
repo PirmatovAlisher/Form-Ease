@@ -1,5 +1,4 @@
 ﻿using FormEase.Core.Interfaces.WebApplication.CoreModels;
-using FormEase.Core.Models.WebApplication.AccessControlModels;
 using FormEase.Core.Models.WebApplication.CoreModels;
 using FormEase.Infrastructure.PostgreSQL.Data;
 using Microsoft.EntityFrameworkCore;
@@ -14,18 +13,29 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 		{
 			_context = context;
 		}
+
 		public async Task<Template> GetByIdAsync(Guid id)
 		{
 			return await _context.Templates.FindAsync(id);
 		}
 
+		public async Task<List<Template>> GetByCreatorIdAsync(string creatorId)
+		{
+			var creatorTemps = await _context.Templates
+				.AsNoTracking()
+				.Where(t => t.CreatorId == creatorId)
+				.Include(t => t.Topic)
+				.OrderByDescending(t => t.UpdatedAt)
+				.ToListAsync();
+
+			return creatorTemps;
+		}
+
 		public async Task<Template> GetByIdWithDetailsAsync(Guid id)
 		{
 			var tempWithDetails = await _context.Templates
-				.AsNoTracking()
-				.Include(t => t.Creator)
 				.Include(t => t.Topic)
-				.Include(t => t.Questions)
+				.Include(t => t.Questions.OrderBy(q => q.Order))
 				.ThenInclude(q => q.Options)
 				.Include(t => t.TemplateTags)
 				.ThenInclude(tt => tt.Tag)
@@ -34,6 +44,19 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 				.FirstOrDefaultAsync(t => t.Id == id);
 
 			return tempWithDetails;
+		}
+
+		public async Task<List<Template>> GetByCreatorIdWithDetailsAsync(string creatorId)
+		{
+			var creatorTemps = await _context.Templates
+				.AsNoTracking()
+				.Where(t => t.CreatorId == creatorId)
+				.Include(t => t.Topic)
+				.Include(t => t.TemplateTags)
+				.ThenInclude(tt => tt.Tag)
+				.ToListAsync();
+
+			return creatorTemps;
 		}
 
 		public async Task<List<Template>> GetPublicTemplatesAsync()
@@ -51,34 +74,10 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 			return publicTemps;
 		}
 
-		public async Task<List<Template>> GetByCreatorIdWithDetailsAsync(string creatorId)
-		{
-			var creatorTemps = await _context.Templates
-				.AsNoTracking()
-				.Where(t => t.CreatorId == creatorId)
-				.Include(t => t.Topic)
-				.Include(t => t.TemplateTags)
-				.ThenInclude(tt => tt.Tag)
-				.ToListAsync();
-
-			return creatorTemps;
-		}
-
-		public async Task<List<Template>> GetByCreatorIdAsync(string creatorId)
-		{
-			var creatorTemps = await _context.Templates
-				.AsNoTracking()
-				.Where(t => t.CreatorId == creatorId)
-				.Include(t => t.Topic)
-				.OrderByDescending(t => t.UpdatedAt)
-				.ToListAsync();
-
-			return creatorTemps;
-		}
-
 		public async Task<List<Template>> GetAccessibleTemplatesAsync(string userId)
 		{
 			var accessibleTemps = await _context.Templates
+				.AsNoTracking()
 				.Where(t => t.IsPublic ||
 							t.AllowedUsers.Any(au => au.UserId == userId) ||
 							t.CreatorId == userId.ToString())
@@ -92,115 +91,31 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 		}
 
 
-
-		public async Task AddAsync(Template template)
+		public Task AddAsync(Template template)
 		{
-			await _context.Templates.AddAsync(template);
-			await _context.SaveChangesAsync();
+			_context.Templates.Add(template);
+			return Task.CompletedTask;
 		}
 
-		public async Task UpdateRangeAsync(List<Template> templates)
+		public async Task UpdateAsync(Template template)
 		{
-			_context.UpdateRange(templates);
+			_context.UpdateRange(template);
 			await _context.SaveChangesAsync();
 		}
 
 		public async Task DeleteRangeAsync(List<Guid> ids)
 		{
-			var templates = new List<Template>();
-
-			foreach (var id in ids)
-			{
-				var template = await _context.Templates.FindAsync(id);
-				if (template != null)
-				{
-					templates.Add(template);
-				}
-			}
+			var templates = await _context.Templates
+				.Where(t => ids.Contains(t.Id))
+				.ToListAsync();
 
 			_context.Templates.RemoveRange(templates);
 			await _context.SaveChangesAsync();
 		}
 
-
-
-		public async Task<bool> ExistsAsync(Guid id)
+		public async Task SaveChangesAsync()
 		{
-			return await _context.Templates.AnyAsync(t => t.Id == id);
-		}
-
-		public async Task AddAllowedUsersAsync(Guid templateId, List<string> userIds)
-		{
-			var userAccesses = new List<UserTemplateAccess>();
-
-			foreach (var userId in userIds)
-			{
-				var access = new UserTemplateAccess
-				{
-					Id = templateId,
-					UserId = userId
-				};
-				userAccesses.Add(access);
-			}
-
-			await _context.UserTemplateAccesses.AddRangeAsync(userAccesses);
 			await _context.SaveChangesAsync();
 		}
-
-		public async Task RemoveAllowedUsersAsync(Guid templateId, List<string> userIds)
-		{
-			var userAccesses = new List<UserTemplateAccess>();
-
-			foreach (var userId in userIds)
-			{
-				var access = await _context.UserTemplateAccesses
-					.FirstOrDefaultAsync(a => a.TemplateId == templateId && a.UserId == userId);
-
-				if (access != null)
-				{
-					userAccesses.Add(access);
-				}
-			}
-
-			_context.UserTemplateAccesses.RemoveRange(userAccesses);
-			await _context.SaveChangesAsync();
-		}
-
-		public async Task AddTagsAsync(Guid templateId, List<Guid> tagIds)
-		{
-			var tempTags = new List<TemplateTag>();
-
-			foreach (var tagId in tagIds)
-			{
-				var tempTag = new TemplateTag
-				{
-					TemplateId = templateId,
-					TagId = tagId
-				};
-				tempTags.Add(tempTag);
-			}
-
-			await _context.TemplateTags.AddRangeAsync(tempTags);
-			await _context.SaveChangesAsync();
-		}
-
-		public async Task RemoveTagsAsync(Guid templateId, List<Guid> tagIds)
-		{
-			var tempTags = new List<TemplateTag>();
-
-			foreach (var tagId in tagIds)
-			{
-				var tag = await _context.TemplateTags
-					.FirstOrDefaultAsync(tt => tt.TemplateId == templateId && tt.TagId == tagId);
-				if (tag != null)
-				{
-					tempTags.Add(tag);
-				}
-			}
-
-			_context.TemplateTags.RemoveRange(tempTags);
-			await _context.SaveChangesAsync();
-		}
-
 	}
 }

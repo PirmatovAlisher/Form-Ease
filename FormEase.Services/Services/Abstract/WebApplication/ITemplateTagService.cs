@@ -1,9 +1,9 @@
-﻿using FormEase.Core.Models.WebApplication.AccessControlModels;
+﻿using FluentValidation.Results;
 
 namespace FormEase.Services.Services.Abstract.WebApplication
 {
 	public interface ITemplateTagService
 	{
-		Task<List<TemplateTag>> CreateTemplateTagsAsync(Guid templateId, List<string> tagNames);
+		Task<ValidationResult> ApplyTemplateTagChangesAsync(Guid templateId, List<string> tagNames);
 	}
 }

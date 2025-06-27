@@ -21,6 +21,16 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.Metadat
 			return tag.Id;
 		}
 
+		public async Task<List<Tag>> GetTagsByNameAsync(List<string> names)
+		{
+			var tags = await _context.Tags
+				.AsNoTracking()
+				.Where(t => names.Contains(t.Name))
+				.ToListAsync();
+
+			return tags;
+		}
+
 
 		public async Task<Tag?> GetByIdAsync(Guid id)
 		{

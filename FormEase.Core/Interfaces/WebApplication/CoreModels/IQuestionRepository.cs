@@ -6,10 +6,10 @@ namespace FormEase.Core.Interfaces.WebApplication.CoreModels
     {
         Task<Question> GetByIdAsync(Guid id);
         Task<Question> GetWithOptionsByIdAsync(Guid id);
-        Task<List<Question>> GetByTemplateIdAsync(Guid templateId);
-        Task AddRangeAsync(List<Question> questions);
-        Task UpdateRangeAsync(List<Question> questions);
+        Task<List<Question>> GetByTemplateIdWithOptionsAsync(Guid templateId);
+        Task AddRangeAsync(IEnumerable<Question> questions);
+        Task UpdateRangeAsync(IEnumerable<Question> questions);
         Task DeleteRangeAsync(List<Guid> ids);
-        Task UpdateShowInResponseListAsync(Guid questionId, bool showInResponseList);
+        Task DeleteRangeAsync(IEnumerable<Question> questions);
     }
 }

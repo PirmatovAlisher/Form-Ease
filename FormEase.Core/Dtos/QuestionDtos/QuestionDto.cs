@@ -4,20 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FormEase.Core.Dtos.QuestionDtos
 {
-	public class QuestionCreateDto
-	{
-		public QuestionCreateDto()
-		{
-			Options = new List<QuestionOptionDto> {
-				new QuestionOptionDto()
-			{
-					Id = Guid.NewGuid(),
-					Value ="Option",
-					QuestionId = Id
-			}
-			};
-		}
-		public Guid Id { get; set; } = Guid.NewGuid();
+	public class QuestionDto
+	{		
+		public Guid Id { get; set; }
 
 		[Required, MaxLength(255)]
 		public string Title { get; set; }

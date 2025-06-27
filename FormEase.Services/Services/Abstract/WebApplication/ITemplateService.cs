@@ -7,8 +7,10 @@ namespace FormEase.Services.Services.Abstract.WebApplication
 {
 	public interface ITemplateService
 	{
-		Task<ValidationResult> AddAsync(TemplateCreateDto templateDto, List<QuestionCreateDto> questions, List<UserDisplayDto> users, List<string> tagNames);
-		Task<List<TemplateListDto>> GetAllCreatorTemplates(string creatorId);
-		Task RemoveTemplates(List<Guid> templateIds);
+		Task<ValidationResult> AddAsync(TemplateCreateDto templateDto, List<QuestionDto> questions, List<UserDisplayDto> users, List<string> tagNames);
+		Task<ValidationResult> EditAsync(TemplateEditDto templateDto, List<QuestionDto> questions, List<UserDisplayDto> users, List<string> tagNames);
+		Task<List<TemplateListDto>> GetAllCreatorTemplatesAsync(string creatorId);
+		Task<TemplateEditDto> GetByIdAsync(string id);
+		Task RemoveTemplatesAsync(List<Guid> templateIds);
 	}
 }

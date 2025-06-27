@@ -1,16 +1,15 @@
 ﻿using FluentValidation;
-using FormEase.Core.Dtos.QuestionOptionDtos;
+using FormEase.Core.Models.WebApplication.CoreModels;
 
 namespace FormEase.Services.FluentValidation.WebApplication.QuestionOptionValidation
 {
-	public class QuestionOptionDtoValidator : AbstractValidator<QuestionOptionDto>
+	public class QuestionOptionModelValidator : AbstractValidator<QuestionOption>
 	{
-		public QuestionOptionDtoValidator()
+		public QuestionOptionModelValidator()
 		{
 			RuleFor(o => o.Value)
 					.Must(value => !string.IsNullOrWhiteSpace(value))
 					.WithMessage("Question Option text is required.");
-
 		}
 	}
 }

@@ -20,14 +20,21 @@ namespace FormEase.Services.Extensions.WebApplication
 			services.AddScoped<IUserService, UserService>();
 			services.AddScoped<ITagService, TagService>();
 			services.AddScoped<ITemplateTagService, TemplateTagService>();
+			services.AddScoped<IUserTemplateAccessService, UserTemplateAccessService>();
+			services.AddScoped<IQuestionService, QuestionService>();
+			services.AddScoped<IQuestionOptionService, QuestionOptionService>();
+			services.AddScoped<ValidationService>();
 
 			services.AddFluentValidationAutoValidation()
 				.AddFluentValidationClientsideAdapters(); ;
 
 
 			services.AddValidatorsFromAssemblyContaining<TemplateCreateValidator>();
-			services.AddValidatorsFromAssemblyContaining<QuestionCreateValidator>();
+			services.AddValidatorsFromAssemblyContaining<TemplateEditValidator>();
+			services.AddValidatorsFromAssemblyContaining<QuestionValidator>();
+			services.AddValidatorsFromAssemblyContaining<QuestionModelValidator>();
 			services.AddValidatorsFromAssemblyContaining<QuestionOptionDtoValidator>();
+			services.AddValidatorsFromAssemblyContaining<QuestionOptionModelValidator>();
 
 			return services;
 		}

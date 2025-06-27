@@ -9,6 +9,9 @@ namespace FormEase.Services.AutoMapper
 		public TemplateMapper()
 		{
 			CreateMap<TemplateCreateDto, Template>();
+
+			CreateMap<TemplateEditDto, Template>().ReverseMap();
+
 			CreateMap<Template, TemplateListDto>();
 		}
 	}

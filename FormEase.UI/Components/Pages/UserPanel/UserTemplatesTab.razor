@@ -1,21 +1,20 @@
-﻿
-@inject ITemplateService TemplateService
+﻿@inject ITemplateService TemplateService
 @inject NavigationManager NavManager
 
 
 <RadzenCard Variant="Variant.Filled" Style="height:730px" class="rz-shadow-6">
-	
+
 	<RadzenRow JustifyContent="JustifyContent.SpaceBetween" class="rz-mb-5">
 		<RadzenCard Variant="Variant.Outlined" class="rz-border-radius-5">
 
 			<!-- Filter Presets -->
 			<RadzenStack Orientation="Orientation.Horizontal" Gap="15px">
-				<RadzenButton Text="New"
-							  Click="@(() => CreateTemp())"
-							  Icon="add_chart" class="no-uppercase rz-border-radius-5"
+				<RadzenButton Click="@(() => CreateTemp())"
+							  Text="New" Icon="add_chart" class="no-uppercase rz-border-radius-5"
 							  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Success" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
 
-				<RadzenButton Icon="edit" Disabled="@(selectedTemps.Count != 1)" class="rz-border-radius-5"
+				<RadzenButton Click="EditTemp"
+							  Icon="edit" Disabled="@(selectedTemps.Count != 1)" class="rz-border-radius-5"
 							  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Warning" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
 
 				<RadzenButton Click="@RemoveTemps"
@@ -56,7 +55,7 @@
 			<!-- Template Description -->
 			<RadzenDataGridColumn Property="@nameof(TemplateListDto.Description)" TItem="TemplateListDto" Title="Description" Width="80px">
 				<Template Context="temp">
-					<RadzenMarkdown Text="@temp.Description"/>
+					<RadzenMarkdown Text="@temp.Description" />
 				</Template>
 			</RadzenDataGridColumn>
 
@@ -117,7 +116,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		templates = await TemplateService.GetAllCreatorTemplates(UserId);
+		templates = await TemplateService.GetAllCreatorTemplatesAsync(UserId);
 	}
 
 	private async Task CreateTemp()
@@ -125,13 +124,30 @@
 		NavManager.NavigateTo($"/create-template/{UserId}");
 	}
 
+	private void EditTemp()
+	{
+		if (selectedTemps.Count == 1)
+		{
+			var template = selectedTemps.First();
+
+			NavManager.NavigateTo($"/edit-template/{template.Id}/{UserId}");
+		}
+	}
+
 	private async Task RemoveTemps()
 	{
 		var temIds = selectedTemps.Select(t => t.Id).ToList();
 
-		await TemplateService.RemoveTemplates(temIds);
+		await TemplateService.RemoveTemplatesAsync(temIds);
 
-		NavManager.Refresh(true);
+		selectedTemps = new List<TemplateListDto>();
+
+		var toRemove = templates.Where(t => temIds.Contains(t.Id)).ToList();
+		templates = templates.Except(toRemove).ToList();
+
+		await grid.Reload();
+		StateHasChanged();
+		//NavManager.Refresh(true);
 	}
 
 	private async Task ToggleSelectAll()

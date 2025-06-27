@@ -8,7 +8,7 @@ namespace FormEase.Services.AutoMapper
 	{
 		public QuestionOptionMapper()
 		{
-			CreateMap<QuestionOptionDto, QuestionOption>();
+			CreateMap<QuestionOptionDto, QuestionOption>().ReverseMap();
 		}
 	}
 }
