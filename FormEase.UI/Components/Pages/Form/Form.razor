@@ -1,0 +1,317 @@
+﻿@page "/form/{Id}"
+
+
+
+
+@rendermode InteractiveServer
+@inject PermissionService PermissionService
+@inject IFormService FormService
+@inject ITemplateService TemplateService
+@inject NotificationService NotificationService
+@inject NavigationManager NavManager
+
+
+<PageTitle>Fill Form</PageTitle>
+
+
+@if (errorMessage is not null)
+{
+	<RadzenStack class="rz-py-8 rz-px-12" JustifyContent="JustifyContent.Center">
+		<RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="false" Variant="Variant.Flat" Shade="Shade.Lighter">
+			@errorMessage
+		</RadzenAlert>
+	</RadzenStack>
+}
+
+<RadzenTemplateForm TItem="FormResponseDto" Submit="OnSubmit" OnInvalidSubmit="@OnInvalidSubmit" Data="formResponse" Context="form">
+	<RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center" Gap="1rem">
+		<DataAnnotationsValidator />
+		<!-- Image upload-->
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+			<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+				<RadzenCard Variant="Variant.Text" class="rz-border-radius-2 rz-p-0" Style="width: 40%; min-width: 300px;">
+					@if (template.ImageUrl != null)
+					{
+						<img src="@template.ImageUrl" alt="Preview" style="width: 100%;min-width:200px; margin-top:10px;" class="rz-border-radius-2" />
+					}
+				</RadzenCard>
+			</RadzenStack>
+		</RadzenStack>
+		<!-- Title & Description -->
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+			<RadzenCard Variant="Variant.Filled" class="rz-border-radius-2" Style="width: 40%; min-width: 300px;">
+				<RadzenStack Orientation="Orientation.Vertical" Gap="1.5rem">
+					<RadzenText Text=@template.Title TextStyle="TextStyle.H3" class="rz-border-bottom" />
+					<RadzenCard Variant="Variant.Outlined" class="rz-border-radius-2">
+						<RadzenMarkdown Text="@template.Description" Style="width:100%;" />
+					</RadzenCard>
+				</RadzenStack>
+			</RadzenCard>
+		</RadzenStack>
+		<!-- Topic -->
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+			<RadzenCard Variant="Variant.Filled" class="rz-border-radius-2" Style="width: 40%; min-width: 300px;">
+				<RadzenText Text="@template.TopicName" TextStyle="TextStyle.H6" />
+			</RadzenCard>
+		</RadzenStack>
+		<!-- Questions-->
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+			<RadzenStack Orientation="Orientation.Vertical" Style="width: 40%; min-width: 300px;">
+				@if (template.Questions.Any())
+				{
+					@foreach (var question in template.Questions)
+					{
+						<RadzenCard Variant="Variant.Filled" class="rz-border-radius-2">
+							<RadzenStack Orientation="Orientation.Vertical">
+								<RadzenText TextStyle="TextStyle.H6">
+									@question.Title
+									@if (question.IsRequired)
+									{
+										<span style="color: #c50042; margin-left: 4px;">*</span>
+									}
+								</RadzenText>
+								<RadzenCard Variant="Variant.Outlined" class="rz-border-radius-2">
+									<RadzenText Text="@question.Description" TextStyle="TextStyle.Subtitle1" />
+								</RadzenCard>
+								@switch (question.Type)
+								{
+									case QuestionType.Text:
+										<RadzenFormField AllowFloatingLabel="false" Variant="Variant.Text" Style="width:100%;">
+											<ChildContent>
+												<RadzenTextBox class="valid" Placeholder="Write your answer"
+															   @bind-Value=@formResponse.Answers.Where(a => a.QuestionId == question.Id).First().Value
+															   ReadOnly="!isAuthenticated" Style="width:100%;" />
+											</ChildContent>
+											<Helper>
+												@if (question.IsRequired)
+												{
+													<ValidationMessage For="() => formResponse.Answers.Where(a => a.QuestionId == question.Id).First().Value"
+																	   class="text-danger" />
+												}
+											</Helper>
+										</RadzenFormField>
+										break;
+									case QuestionType.Paragraph:
+										<RadzenFormField AllowFloatingLabel="false" Variant="Variant.Text" Style="width:100%;">
+											<ChildContent>
+												<RadzenTextArea Rows="3" ReadOnly="!isAuthenticated"
+																@bind-Value=@formResponse.Answers.Where(a => a.QuestionId == question.Id).First().Value
+																Placeholder="Write your answer" Style="width:100%;" />
+											</ChildContent>
+											<Helper>
+												@if (question.IsRequired)
+												{
+													<ValidationMessage For="() => formResponse.Answers.Where(a => a.QuestionId == question.Id).First().Value"
+																	   class="text-danger" />
+												}
+											</Helper>
+										</RadzenFormField>
+										break;
+									case QuestionType.Number:
+										<RadzenFormField AllowFloatingLabel="false" Variant="Variant.Text" Style="width:100%;">
+											<ChildContent>
+												<RadzenNumeric @bind-Value=@formResponse.Answers.Where(a => a.QuestionId == question.Id).First().Value
+															   ReadOnly="!isAuthenticated" ShowUpDown="false"
+															   TValue="string"
+															   Placeholder="Enter a value" />
+											</ChildContent>
+											<Helper>
+												@if (question.IsRequired)
+												{
+													<ValidationMessage For="() => formResponse.Answers.Where(a => a.QuestionId == question.Id).First().Value"
+																	   class="text-danger" />
+												}
+											</Helper>
+										</RadzenFormField>
+										break;
+									case QuestionType.Checkboxes:
+										<RadzenCheckBoxList TValue="Guid"
+															Value="@checkboxSelections[question.Id]"
+															ValueChanged="@(selected => OnCheckboxChanged(selected, question.Id))"
+															ReadOnly="!isAuthenticated"
+															Orientation="Orientation.Vertical">
+											<Items>
+												@foreach (var opt in question.Options)
+												{
+													<RadzenCheckBoxListItem Text="@opt.Value" Value="@opt.Id" />
+												}
+											</Items>
+										</RadzenCheckBoxList>
+										break;
+									case QuestionType.Dropdown:
+										<RadzenFormField>
+											<ChildContent>
+												<RadzenDropDown Data="@question.Options"
+																TValue="Guid?"
+																TextProperty="Value"
+																ValueProperty="Id"
+																Value="@GetDropdownValue(question.Id)"
+																ValueChanged="@( (Guid? val) => OnDropdownChange(val, question.Id) )"
+																AllowClear=true
+																ReadOnly="!isAuthenticated" Placeholder="Select..." />
+											</ChildContent>
+											<Helper>
+												@if (question.IsRequired)
+												{
+													<ValidationMessage For="() => formResponse.Answers.Where(a => a.QuestionId == question.Id).First().Value"
+																	   class="text-danger" />
+												}
+											</Helper>
+										</RadzenFormField>
+										break;
+
+									default:
+										break;
+								}
+
+							</RadzenStack>
+						</RadzenCard>
+					}
+				}
+			</RadzenStack>
+		</RadzenStack>
+		<!-- Submit Button-->
+		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+			<RadzenButton Text="Publish" ButtonType="ButtonType.Submit" Icon="upload_2" class="no-uppercase rz-border-radius-7"
+						  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Size="ButtonSize.Medium" />
+		</RadzenStack>
+	</RadzenStack>
+</RadzenTemplateForm>
+
+
+@code {
+
+	[Parameter]
+	public string Id { get; set; }
+
+
+	private TemplateFillDto template = new();
+	private FormResponseDto formResponse = new();
+	private bool isAuthenticated { get; set; } = false;
+
+	IEnumerable<Guid> checkboxValues = new Guid[] { };
+	private Dictionary<Guid, List<Guid>> checkboxSelections = new();
+	private Dictionary<Guid, Guid?> dropdownSelections;
+
+	private string? errorMessage;
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		isAuthenticated = await PermissionService.IsUserAuthenticated();
+		var hasPermission = await PermissionService.CanViewForm(Guid.Parse(Id));
+		if (!hasPermission)
+		{
+			Notify("You don't have permission", NotificationSeverity.Error);
+			NavManager.NavigateTo($"/Account/AccessDenied");
+		}
+
+
+
+		template = await TemplateService.GetTemplateToFill(Id);
+		if (template.Questions.Any())
+		{
+			formResponse.Answers = template.Questions
+			.Select(q =>
+				new AnswerDto()
+					{
+						QuestionId = q.Id,
+						ResponseId = formResponse.Id,
+						SelectedOptions = new()
+					}).ToList();
+
+		}
+	}
+
+	protected override void OnParametersSet()
+	{
+		checkboxSelections = template.Questions
+		.ToDictionary(q => q.Id, _ => new List<Guid>());
+
+		dropdownSelections = template.Questions
+		.Where(q => q.Type == QuestionType.Dropdown)
+		.ToDictionary(q => q.Id, _ => (Guid?)null);
+	}
+
+	private async Task OnSubmit(FormResponseDto formResponse)
+	{
+		if (!isAuthenticated)
+		{
+			Notify("Authenticate first", NotificationSeverity.Error);
+			return;
+		}
+
+		var userId = await PermissionService.GetCurrentUserId();
+		formResponse.RespondentId = userId;
+		formResponse.TemplateId = template.Id;
+
+		var result = await FormService.CreateFormAsync(formResponse, checkboxSelections, dropdownSelections);
+		if (!result.IsValid)
+		{
+			var errors = result.Errors.Select(f => f.ErrorMessage);
+			errorMessage = string.Join("\n", errors);
+			Notify(errorMessage, NotificationSeverity.Error);
+
+			return;
+		}
+
+		// yield back to Blazor so it can send the next heartbeat
+		await InvokeAsync(StateHasChanged);
+
+		NavManager.NavigateTo($"/");
+	}
+
+	private void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+	{
+		var errors = string.Join("\n", args.Errors);
+
+		Notify(errors, NotificationSeverity.Error);
+	}
+
+	private void OnCheckboxChanged(IEnumerable<Guid> selected, Guid questionId)
+	{
+		checkboxSelections[questionId] = selected.ToList();
+	}
+
+	private Guid? GetDropdownValue(Guid questionId)
+	{
+		return dropdownSelections != null
+			&& dropdownSelections.TryGetValue(questionId, out var v)
+			? v
+			: null;
+	}
+
+	private void OnDropdownChange(Guid? newValue, Guid questionId)
+	{
+		// update map
+		dropdownSelections[questionId] = newValue;
+
+		// mirror into the AnswerDto for this question:
+		var answer = formResponse.Answers.First(a => a.QuestionId == questionId);
+		answer.SelectedOptions = newValue.HasValue
+				? new List<SelectedOptionDto> {
+		  new SelectedOptionDto {
+			AnswerId   = answer.Id,
+			OptionId   = newValue.Value
+		  }
+					}
+				: new List<SelectedOptionDto>();
+	}
+
+	private void Notify(string message, NotificationSeverity type)
+	{
+		NotificationService.Notify(new NotificationMessage
+			{
+				Severity = type,
+				Duration = 10000,
+				SummaryContent = ns =>@<RadzenText TextStyle="TextStyle.Subtitle1">@message</RadzenText>
+		});
+	}
+}
+
+<style>
+	/* override Radzen's valid-input highlighting */
+	.valid.modified {
+		outline: none !important;
+	}
+</style>

@@ -10,5 +10,10 @@ namespace FormEase.Core.Dtos.QuestionOptionDtos
 		public string Value { get; set; }
 
 		public Guid QuestionId { get; set; }
+
+		public override string ToString()
+		{
+			return Value;
+		}
 	}
 }

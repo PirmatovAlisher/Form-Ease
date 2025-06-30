@@ -1,4 +1,6 @@
-﻿@inject ITemplateService TemplateService
+﻿
+@inject ITemplateService TemplateService
+@inject PermissionService PermissionService
 @inject NavigationManager NavManager
 
 
@@ -124,13 +126,17 @@
 		NavManager.NavigateTo($"/create-template/{UserId}");
 	}
 
-	private void EditTemp()
+	private async void EditTemp()
 	{
 		if (selectedTemps.Count == 1)
 		{
-			var template = selectedTemps.First();
+			var templateId = selectedTemps.First().Id;
 
-			NavManager.NavigateTo($"/edit-template/{template.Id}/{UserId}");
+			var hasPermission = await PermissionService.CanEditTemplate(templateId);
+			if (hasPermission)
+			{
+				NavManager.NavigateTo($"/edit-template/{templateId}/{UserId}");
+			}
 		}
 	}
 

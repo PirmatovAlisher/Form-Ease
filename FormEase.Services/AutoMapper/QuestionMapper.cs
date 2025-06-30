@@ -9,6 +9,7 @@ namespace FormEase.Services.AutoMapper
 		public QuestionMapper()
 		{
 			CreateMap<QuestionDto, Question>().ReverseMap();
+			CreateMap<Question, QuestionFillDto>();
 		}
 	}
 }

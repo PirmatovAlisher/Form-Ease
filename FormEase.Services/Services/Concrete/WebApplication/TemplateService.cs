@@ -32,19 +32,11 @@ namespace FormEase.Services.Services.Concrete.WebApplication
 
 		public async Task<List<TemplateListDto>> GetAllCreatorTemplatesAsync(string creatorId)
 		{
-			try
-			{
-				var templates = await _templateRepo.GetByCreatorIdAsync(creatorId);
+			var templates = await _templateRepo.GetByCreatorIdAsync(creatorId);
 
-				var templateListDto = _mapper.Map<List<TemplateListDto>>(templates);
+			var dtos = _mapper.Map<List<TemplateListDto>>(templates);
 
-				return templateListDto;
-			}
-			catch (Exception ex)
-			{
-
-				throw;
-			}
+			return dtos;
 		}
 
 		public async Task<ValidationResult> AddAsync(TemplateCreateDto templateDto, List<QuestionDto> questions, List<UserDisplayDto> users, List<string> tagNames)
@@ -167,6 +159,23 @@ namespace FormEase.Services.Services.Concrete.WebApplication
 
 			return templateDto;
 		}
+
+		public async Task<List<TemplateDisplayDto>> GetLatestTemplatesAsync(int limit = 10)
+		{
+			var templates = await _templateRepo.GetLatestTemplatesAsync(limit);
+
+			return _mapper.Map<List<TemplateDisplayDto>>(templates);
+		}
+
+		public async Task<TemplateFillDto> GetTemplateToFill(string templateId)
+		{
+			var template = await _templateRepo.GetByIdToFillAsync(Guid.Parse(templateId));
+
+			var dto = _mapper.Map<TemplateFillDto>(template);
+
+			return dto;
+		}
+
 
 	}
 }

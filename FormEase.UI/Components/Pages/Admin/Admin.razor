@@ -28,21 +28,24 @@
 		<RadzenCard Variant="Variant.Outlined" class="rz-border-radius-5">
 
 			<!-- Filter Presets -->
-			<RadzenStack Orientation="Orientation.Horizontal" Gap="15px" >
+			<RadzenStack Orientation="Orientation.Horizontal" Gap="15px">
 				<RadzenButton Text="Block"
-							  Click="@(() => BlockUser(selectedUsers))"
-							  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Warning" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+							  Click="@(() => BlockUser(selectedUsers))" class="no-uppercase rz-border-radius-5"
+							  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Warning" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
 
 				<RadzenButton Icon="lock_open"
-							  Click="@(() => UnblockUser(selectedUsers))"
-							  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Success" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+							  Click="@(() => UnblockUser(selectedUsers))" class="no-uppercase rz-border-radius-5"
+							  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Success" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
 
 				<RadzenButton Text="ToggleAdmin"
-							  Click="@(() => ToggleAdmin(selectedUsers))"
-							  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Info" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+							  Click="@(() => ToggleAdmin(selectedUsers))" class="no-uppercase rz-border-radius-5"
+							  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Info" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+				<RadzenButton Text="View" Disabled="@(selectedUsers.Count != 1)"
+							  Click="@(() => ViewUserPanel())" class="no-uppercase rz-border-radius-5"
+							  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Secondary" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
 				<RadzenButton Icon="delete"
-							  Click="@(() => DeleteUser(selectedUsers))"
-							  Variant="Variant.Flat" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+							  Click="@(() => DeleteUser(selectedUsers))" class="no-uppercase rz-border-radius-5"
+							  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
 
 			</RadzenStack>
 		</RadzenCard>
@@ -223,6 +226,16 @@
 		}
 		selectedUsers = new List<ApplicationUser>();
 		NavManager.Refresh(true);
+	}
+
+	private void ViewUserPanel()
+	{
+		if(selectedUsers.Count == 1)
+		{
+			var userId = selectedUsers.First().Id;
+
+			NavManager.NavigateTo($"/user-page/{userId}");
+		}
 	}
 
 	private async Task DeleteUser(IList<ApplicationUser> users)

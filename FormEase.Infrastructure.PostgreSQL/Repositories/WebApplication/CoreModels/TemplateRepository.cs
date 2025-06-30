@@ -1,4 +1,5 @@
-﻿using FormEase.Core.Interfaces.WebApplication.CoreModels;
+﻿using FormEase.Core.Dtos.TemplateDtos;
+using FormEase.Core.Interfaces.WebApplication.CoreModels;
 using FormEase.Core.Models.WebApplication.CoreModels;
 using FormEase.Infrastructure.PostgreSQL.Data;
 using Microsoft.EntityFrameworkCore;
@@ -46,6 +47,18 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 			return tempWithDetails;
 		}
 
+		public async Task<List<Template>> GetLatestTemplatesAsync(int limit)
+		{
+			return await _context.Templates
+				.Where(t => t.IsPublic == true)
+				.OrderByDescending(t => t.CreatedAt)
+				.Take(limit)
+				.Include(t => t.Topic)
+				.Include(t => t.Creator)
+				.Include(t => t.Likes)
+				.ToListAsync();
+		}
+
 		public async Task<List<Template>> GetByCreatorIdWithDetailsAsync(string creatorId)
 		{
 			var creatorTemps = await _context.Templates
@@ -90,6 +103,13 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 			return accessibleTemps;
 		}
 
+		public async Task<string> GetCreatorIdByTemplateId(Guid templateId)
+		{
+			var template = await _context.Templates.FindAsync(templateId);
+
+			return template.CreatorId;
+
+		}
 
 		public Task AddAsync(Template template)
 		{
@@ -116,6 +136,33 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 		public async Task SaveChangesAsync()
 		{
 			await _context.SaveChangesAsync();
+		}
+
+		public async Task<Template> GetByIdToFillAsync(Guid id)
+		{
+			var template = await _context.Templates
+				.Include(t => t.Topic)
+				.Include(t => t.Questions.OrderBy(q => q.Order))
+				.ThenInclude(tq => tq.Options)
+				.Include(t => t.Comments)
+				.ThenInclude(tc => tc.Author)
+				.Include(t => t.TemplateTags)
+				.ThenInclude(tt => tt.Tag)
+				.Include(t => t.AllowedUsers)
+				.ThenInclude(ta => ta.User)
+				.FirstOrDefaultAsync(t => t.Id == id);
+
+			return template;
+		}
+
+		public async Task<Template> GetAllowedUsersByIdAsync(Guid templateId)
+		{
+			var template = await _context.Templates
+				.Include(t => t.AllowedUsers)
+				.ThenInclude(au => au.User)
+				.FirstOrDefaultAsync(t => t.Id == templateId);
+
+			return template;
 		}
 	}
 }

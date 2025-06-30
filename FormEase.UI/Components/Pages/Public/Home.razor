@@ -1,21 +1,73 @@
 ﻿@page "/"
 
 @rendermode InteractiveServer
+@inject ITemplateService TemplateService
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<RadzenStack Orientation="Orientation.Vertical">
+	<RadzenText Text="Latest Templates" TextStyle="TextStyle.Subtitle2" />
+	<RadzenRow Gap="0" class="rz-display-flex justify-content-center">
+		@foreach (var template in LatestTemplates)
+		{
+			<RadzenColumn>
+				<NavLink class="text-decoration-none" href="@($"/form/{template.Id}")">
+					<RadzenCard Variant="Variant.Filled" Style="width: 25%; min-width: 280px;" class="rz-m-2 rz-border-radius-5">
+						<RadzenStack Orientation="Orientation.Vertical" Style="width: 100%;" Gap="0.5rem">
+							@if (!string.IsNullOrWhiteSpace(template.ImageUrl))
+							{
+								<img src="@template.ImageUrl" class="carousel-img" />
+							}
+							else
+							{
+								<RadzenCard Variant="Variant.Outlined" class="rz-border-radius-2">
+									<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+										<RadzenIcon Icon="photo" IconStyle="IconStyle.Base" Style="height:115px; width:100%; font-size:90px" />
+									</RadzenStack>
+								</RadzenCard>
+							}
+							<RadzenText Text="@template.Title" TextStyle="TextStyle.H6" />
+							<RadzenText Text="@template.Creator.FullName" TextStyle="TextStyle.Subtitle2" />
+						</RadzenStack>
+					</RadzenCard>
+				</NavLink>
+			</RadzenColumn>
+		}
+	</RadzenRow>
 
-Welcome to your new app.
+	<RadzenStack Orientation="Orientation.Horizontal">
+		<RadzenCard>
+			<RadzenText Text="Popular Templates" TextStyle="TextStyle.Subtitle2" />
 
-<RadzenAppearanceToggle/>
-
-
-<RadzenButton Click="@ButtonClicked" Text="Hi"></RadzenButton>
+			Popular Templates
+		</RadzenCard>
+	</RadzenStack>
+	<RadzenStack Orientation="Orientation.Horizontal">
+		<RadzenCard>
+			Tag Cloud
+		</RadzenCard>
+	</RadzenStack>
+</RadzenStack>
 
 @code {
-	void ButtonClicked()
+
+	private List<TemplateDisplayDto> LatestTemplates = new();
+
+
+	protected override async Task OnInitializedAsync()
 	{
-		// Handle the Click event of RadzenButton
+		LatestTemplates = await TemplateService.GetLatestTemplatesAsync(6);
 	}
 }
+
+<style>
+	/* Uniform image size */
+	.carousel-img {
+		width: 100%;
+		min-width: 250px;
+		height: 150px;
+		object-fit: cover;
+		border-radius: 8px;
+	}
+
+</style>

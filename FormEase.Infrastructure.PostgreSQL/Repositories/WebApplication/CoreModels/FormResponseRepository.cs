@@ -55,7 +55,6 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 		public async Task AddAsync(FormResponse formResponse)
 		{
 			await _context.FormResponses.AddAsync(formResponse);
-			await _context.SaveChangesAsync();
 		}
 
 		public async Task UpdateAsync(FormResponse formResponse)
@@ -80,6 +79,18 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 		public async Task<bool> ExistsAsync(Guid id)
 		{
 			return await _context.FormResponses.AnyAsync(fr => fr.Id == id);
+		}
+
+		public async Task<string> GetRespondentIdByFormId(Guid formId)
+		{
+			var form = await _context.FormResponses.FindAsync(formId);
+
+			return form.RespondentId;
+		}
+
+		public async Task SaveChangesAsync()
+		{
+			await _context.SaveChangesAsync();
 		}
 	}
 }

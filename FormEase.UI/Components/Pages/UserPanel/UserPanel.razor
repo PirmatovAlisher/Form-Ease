@@ -1,6 +1,6 @@
 ﻿@page "/user-page/{UserId}"
 
-@attribute [Authorize]
+@attribute [Authorize(Policy = "IsNotBlocked")]
 @rendermode InteractiveServer
 @inject NavigationManager NavManager
 

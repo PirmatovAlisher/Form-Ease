@@ -3,6 +3,7 @@
 
 @attribute [Authorize]
 @rendermode InteractiveServer
+@inject PermissionService PermissionService
 @inject ITemplateService TemplateService
 @inject IImageUploadService ImageUploadService
 @inject ITagService TagService
@@ -42,7 +43,7 @@
 
 		<!-- Image upload-->
 		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
-			<RadzenCard Variant="Variant.Outlined" class="rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style="width: 40%; min-width: 300px;">
+			<RadzenCard Variant="Variant.Filled" class="rz-border-radius-2" Style="width: 40%; min-width: 300px;">
 
 				<RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Choose an image to upload</RadzenText>
 				<RadzenFormField>
@@ -53,11 +54,11 @@
 				<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
 					@if (previewUrl != null)
 					{
-						<img src="@previewUrl" alt="Preview" style="width: 100%;min-width:200px; margin-top:10px;" />
+						<img src="@previewUrl" alt="Preview" style="width: 100%;min-width:200px; margin-top:10px;" class="rz-border-radius-2" />
 					}
 					else
 					{
-						<RadzenIcon Icon="photo" Style="color: #FEA116; font-size:90px" class="rz-ms-2" />
+						<RadzenIcon Icon="photo" IconColor="IconColer.Base" Style="font-size:90px" class="rz-ms-2" />
 					}
 				</RadzenStack>
 			</RadzenCard>
@@ -65,53 +66,53 @@
 
 		<!-- Title & Description -->
 		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
-			<RadzenCard Variant="Variant.Outlined" class="rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style="width: 40%; min-width: 300px;">
-				<RadzenCard Variant="Variant.Filled" class=" rz-border-radius-2">
-					<RadzenStack Orientation="Orientation.Vertical">
-						<RadzenFormField AllowFloatingLabel="false" Variant="Variant.Text">
-							<ChildContent>
-								<RadzenTextBox Name="Title" @bind-Value=template.Title Placeholder="Title" class="valid" Style="font-size: 38px; padding: 0.5rem; width:70%;height: 48px;" />
-							</ChildContent>
-							<Helper>
-								<ValidationMessage For="() => template.Title" class="text-danger" />
-							</Helper>
-						</RadzenFormField>
+			<RadzenCard Variant="Variant.Filled" class=" rz-border-radius-2" Style="width: 40%; min-width: 300px;">
+				<RadzenStack Orientation="Orientation.Vertical">
+					<RadzenFormField AllowFloatingLabel="false" Variant="Variant.Text">
+						<ChildContent>
+							<RadzenTextBox Name="Title" @bind-Value=template.Title Placeholder="Title" class="valid" Style="font-size: 38px; padding: 0.5rem; width:70%;height: 48px;" />
+						</ChildContent>
+						<Helper>
+							<ValidationMessage For="() => template.Title" class="text-danger" />
+						</Helper>
+					</RadzenFormField>
 
-						<RadzenMarkdown Text="@template.Description" @bind-Value=template.Description Style="width:100%;" />
+					<RadzenMarkdown Text="@template.Description" @bind-Value=template.Description Style="width:100%;" />
 
-						<RadzenFormField AllowFloatingLabel="false" Variant="Variant.Filled">
-							<ChildContent>
-								<RadzenTextArea Name="Description" Rows="3" @bind-Value=template.Description Placeholder="Description" Style="width:100%;" />
-							</ChildContent>
-							<Helper>
-								<ValidationMessage For="() => template.Description" class="text-danger" />
-							</Helper>
-						</RadzenFormField>
-					</RadzenStack>
-				</RadzenCard>
+					<RadzenFormField AllowFloatingLabel="false" Variant="Variant.Filled">
+						<ChildContent>
+							<RadzenTextArea Name="Description" Rows="3" @bind-Value=template.Description Placeholder="Description" Style="width:100%;" />
+						</ChildContent>
+						<Helper>
+							<ValidationMessage For="() => template.Description" class="text-danger" />
+						</Helper>
+					</RadzenFormField>
+				</RadzenStack>
 			</RadzenCard>
 		</RadzenStack>
 
 		<!-- Topic Selection -->
 		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
-			<RadzenCard Variant="Variant.Outlined" class="rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style="width: 40%; min-width: 300px;">
-				<RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Select Topic</RadzenText>
-				<RadzenFormField>
-					<ChildContent>
-						<RadzenDropDown @bind-Value="@template.TopicId" Data="@topics"
-										TextProperty="Name" ValueProperty="Id"
-										Placeholder="Select Topic" Style="width:100%" />
-					</ChildContent>
-					<Helper>
-						<ValidationMessage For="() => template.TopicId" class="text-danger" />
-					</Helper>
-				</RadzenFormField>
+			<RadzenCard Variant="Variant.Filled" class="rz-border-radius-2" Style="width: 40%; min-width: 300px;">
+				<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+					<RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Select Topic</RadzenText>
+					<RadzenFormField>
+						<ChildContent>
+							<RadzenDropDown @bind-Value="@template.TopicId" Data="@topics"
+											TextProperty="Name" ValueProperty="Id"
+											Placeholder="Select Topic" Style="width:100%" />
+						</ChildContent>
+						<Helper>
+							<ValidationMessage For="() => template.TopicId" class="text-danger" />
+						</Helper>
+					</RadzenFormField>
+				</RadzenStack>
 			</RadzenCard>
 		</RadzenStack>
 
 		<!-- Is Public -->
 		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
-			<RadzenCard Variant="Variant.Outlined" class="rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style="width: 40%; min-width: 300px;">
+			<RadzenCard Variant="Variant.Filled" class="rz-border-radius-2" Style="width: 40%; min-width: 300px;">
 				<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
 					<RadzenFormField>
 						<ChildContent>
@@ -129,7 +130,7 @@
 		@if (!template.IsPublic)
 		{
 			<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
-				<RadzenCard Variant="Variant.Outlined" class="rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style="width: 40%; min-width: 300px;">
+				<RadzenCard Variant="Variant.Outlined" class="rz-border-radius-2" Style="width: 40%; min-width: 300px;">
 					<RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Allowed Users</RadzenText>
 					<RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center" Gap="1rem">
 						<RadzenRow JustifyContent="JustifyContent.SpaceBetween">
@@ -160,7 +161,7 @@
 						</RadzenRow>
 
 						<RadzenDataGrid @ref="grid" TItem="UserDisplayDto" Data="accessedUsers" @bind-Value=@selectedUsers
-										AllowRowSelectOnRowClick="true" SelectionMode="DataGridSelectionMode.Multiple"
+										AllowRowSelectOnRowClick="true" SelectionMode="DataGridSelectionMode.Multiple" class="rz-border-radius-2"
 										AllowSorting="true" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" PageSize="9">
 							<Columns>
 
@@ -204,13 +205,13 @@
 								 Drop="@OnQuestionDrop">
 			<ChildContent>
 				<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
-					<RadzenDropZone Value="Status.NotStarted" class="rz-display-flex rz-flex-column rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style=" gap: 1rem;width: 40%; min-width: 300px;">
+					<RadzenDropZone Value="Status.NotStarted" class="rz-display-flex rz-flex-column rz-border-base-300 rz-border-radius-2" Style=" gap:1rem; width: 40%; min-width: 300px;">
 						<ChildContent>
 							<RadzenText Text="Questions" class="rz-p-4" TextStyle="TextStyle.Subtitle2" />
 						</ChildContent>
 						<Footer>
 							<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
-								<RadzenButton Click="@CreateQuestion" Icon="add" Size="ButtonSize.Medium" ButtonStyle="ButtonStyle.Success" Variant="Variant.Filled" Shade="Shade.Light" class="rz-m-4 rz-border-radius-5" />
+								<RadzenButton Click="@CreateQuestion" Icon="add" Size="ButtonSize.Medium" ButtonStyle="ButtonStyle.Success" Variant="Variant.Filled" Shade="Shade.Lighter" class="rz-m-4 rz-border-radius-5" />
 							</RadzenStack>
 						</Footer>
 					</RadzenDropZone>
@@ -342,10 +343,10 @@
 
 		<!-- Tags -->
 		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
-			<RadzenCard Variant="Variant.Outlined" class="rz-background-color-warning-lighter rz-border-warning-light rz-border-radius-2" Style="width: 40%; min-width: 300px;">
+			<RadzenCard Variant="Variant.Filled" class="rz-border-radius-2" Style="width: 40%; min-width: 300px;">
 				<RadzenText Text="Template Tags" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" />
 				<RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center" Gap="1rem">
-					<RadzenCard Variant="Variant.Filled" class=" rz-border-radius-2">
+					<RadzenCard Variant="Variant.Outlined" class=" rz-border-radius-2">
 						<div style="display: flex; flex-wrap: wrap;">
 							@foreach (var tag in templateTagNames)
 							{
@@ -466,6 +467,8 @@
 
 	private async Task OnSubmit(TemplateEditDto template)
 	{
+		var hasPermission = await PermissionService.CanEditTemplate(template.Id);
+		if(!hasPermission) return;
 
 		var tempQuestions = questions.Select(q => q.Question).ToList();
 
@@ -489,15 +492,7 @@
 	private void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
 	{
 		var errors = string.Join("\n", args.Errors);
-
-		NotificationService.Notify(new NotificationMessage
-			{
-				Style = "position: absolute; inset-inline-start: -1000px;",
-				Severity = NotificationSeverity.Error,
-				Duration = 10000,
-				SummaryContent = ns =>@<RadzenText TextStyle="TextStyle.H6">@errors</RadzenText>,
-		DetailContent = ns => @<RadzenButton Text="Clear" Click="@(args => ns.Messages.Clear())" />
-		});
+		Notify(errors, NotificationSeverity.Error);
 	}
 
 	// Searching user to grand access
@@ -598,6 +593,16 @@
 		templateTagNames.Remove(name);
 		StateHasChanged();
 	}
+
+	private void Notify(string message, NotificationSeverity type)
+	{
+		NotificationService.Notify(new NotificationMessage
+			{
+				Severity = type,
+				Duration = 10000,
+				SummaryContent = ns =>@<RadzenText TextStyle="TextStyle.Subtitle1">@message</RadzenText>
+		});
+	}
 }
 
 <!-- Image Upload -->
@@ -622,14 +627,7 @@
 			}
 			catch (Exception ex)
 			{
-				NotificationService.Notify(new NotificationMessage
-					{
-						Style = "position: absolute; inset-inline-start: -1000px;",
-						Severity = NotificationSeverity.Error,
-						Duration = 10000,
-						SummaryContent = ns =>@<RadzenText TextStyle="TextStyle.H6">@ex.Message </RadzenText>,
-				DetailContent = ns => @<RadzenButton Text="Clear" Click="@(args => ns.Messages.Clear())" />
-				});
+				Notify("Error occur while uploading the image", NotificationSeverity.Error);
 			}
 		}
 	}

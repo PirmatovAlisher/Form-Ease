@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Radzen;
 using FluentValidation;
+using FormEase.UI.Extensions.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FormEase.UI
 {
@@ -56,7 +58,12 @@ namespace FormEase.UI
 				})
 				.AddIdentityCookies();
 
-			builder.Services.AddAuthorization();
+			builder.Services.AddAuthorization(options =>
+			{
+				options.AddPolicy("IsNotBlocked", policy =>
+				policy.Requirements.Add(new IsNotBlockedRequirement()));
+			});
+			builder.Services.AddScoped<IAuthorizationHandler, IsNotBlockedHandler>();
 
 			builder.Services.ConfigureApplicationCookie(options =>
 			{
@@ -113,7 +120,7 @@ namespace FormEase.UI
 			app.UseAuthentication();
 			app.UseAuthorization();
 
-			app.UseMiddleware<BlockedUserMiddleware>();
+			//app.UseMiddleware<BlockedUserMiddleware>();
 
 			app.UseAntiforgery();
 

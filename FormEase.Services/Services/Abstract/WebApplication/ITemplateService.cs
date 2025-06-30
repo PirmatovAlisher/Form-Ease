@@ -12,5 +12,7 @@ namespace FormEase.Services.Services.Abstract.WebApplication
 		Task<List<TemplateListDto>> GetAllCreatorTemplatesAsync(string creatorId);
 		Task<TemplateEditDto> GetByIdAsync(string id);
 		Task RemoveTemplatesAsync(List<Guid> templateIds);
+		Task<List<TemplateDisplayDto>> GetLatestTemplatesAsync(int limit = 10);
+		Task<TemplateFillDto> GetTemplateToFill(string templateId);
 	}
 }

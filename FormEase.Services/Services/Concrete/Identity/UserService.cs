@@ -1,5 +1,4 @@
 ﻿using FormEase.Core.Dtos.ApplicationUserDtos;
-using FormEase.Core.Models.Identity;
 using FormEase.Infrastructure.PostgreSQL.Data;
 using FormEase.Services.Services.Abstract.Identity;
 using Microsoft.EntityFrameworkCore;

@@ -23,4 +23,8 @@
     <ProjectReference Include="..\FormEase.Services\FormEase.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Components\Pages\Shared\" />
+  </ItemGroup>
+
 </Project>

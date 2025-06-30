@@ -17,6 +17,7 @@ namespace FormEase.Infrastructure.PostgreSQL.Data
         public DbSet<QuestionOption> QuestionOptions { get; set; }
         public DbSet<FormResponse> FormResponses { get; set; }
         public DbSet<Answer> Answers { get; set; }
+        public DbSet<SelectedOption> SelectedOptions { get; set; }
 
         public DbSet<Topic> Topics { get; set; }
         public DbSet<Tag> Tags { get; set; }

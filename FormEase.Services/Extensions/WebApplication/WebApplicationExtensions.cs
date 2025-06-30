@@ -15,10 +15,12 @@ namespace FormEase.Services.Extensions.WebApplication
 	{
 		public static IServiceCollection LoadWebApplicationExtensions(this IServiceCollection services)
 		{
+			services.AddScoped<PermissionService>();
 			services.AddScoped<IImageUploadService, ImageUploadService>();
 			services.AddScoped<ITemplateService, TemplateService>();
 			services.AddScoped<IUserService, UserService>();
 			services.AddScoped<ITagService, TagService>();
+			services.AddScoped<IFormService, FormService>();
 			services.AddScoped<ITemplateTagService, TemplateTagService>();
 			services.AddScoped<IUserTemplateAccessService, UserTemplateAccessService>();
 			services.AddScoped<IQuestionService, QuestionService>();
