@@ -10,6 +10,7 @@ namespace FormEase.Services.AutoMapper
 		{
 			CreateMap<FormResponse, FormResponseDto>().ReverseMap();
 			CreateMap<FormResponse, FormResponseListDto>().ReverseMap();
+			CreateMap<FormResponse, FormResponseReportDto>().ReverseMap();
 
 			CreateMap<FormResponse, FormResponseEditDto>().ReverseMap();
 		}

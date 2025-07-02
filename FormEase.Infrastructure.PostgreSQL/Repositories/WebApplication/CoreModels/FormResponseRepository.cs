@@ -7,10 +7,12 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 {
 	public class FormResponseRepository : IFormResponseRepository
 	{
+		private readonly IDbContextFactory<ApplicationDbContext> _dbContextFactory;
 		private readonly ApplicationDbContext _context;
 
-		public FormResponseRepository(ApplicationDbContext context)
+		public FormResponseRepository(IDbContextFactory<ApplicationDbContext> dbContextFactory, ApplicationDbContext context)
 		{
+			_dbContextFactory = dbContextFactory;
 			_context = context;
 		}
 
@@ -39,11 +41,13 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 
 		public async Task<List<FormResponse>> GetByTemplateIdAsync(Guid templateId)
 		{
-			var forms = await _context.FormResponses
+			await using var ctx = _dbContextFactory.CreateDbContext();
+
+			var forms = await ctx.FormResponses
+				.AsNoTracking()
 				.Where(fr => fr.TemplateId == templateId)
-				.Include(fr => fr.Answers)
 				.Include(fr => fr.Respondent)
-				.OrderBy(fr => fr.CreatedAt)
+				.OrderByDescending(fr => fr.CreatedAt)
 				.ToListAsync();
 
 			return forms;

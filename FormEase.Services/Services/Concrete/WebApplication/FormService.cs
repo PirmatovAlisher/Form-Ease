@@ -67,6 +67,15 @@ namespace FormEase.Services.Services.Concrete.WebApplication
 			return dto;
 		}
 
+		public async Task<List<FormResponseReportDto>> GetFormsByTemplateId(string templateId)
+		{
+			var forms = await _responseRepository.GetByTemplateIdAsync(Guid.Parse(templateId));
+
+			var dto = _mapper.Map<List<FormResponseReportDto>>(forms);
+
+			return dto;
+		}
+
 		public async Task<FormResponseEditDto> GetForEditById(string formId)
 		{
 			var form = await _responseRepository.GetByIdAsync(Guid.Parse(formId));
@@ -96,11 +105,8 @@ namespace FormEase.Services.Services.Concrete.WebApplication
 		}
 
 		public async Task<ValidationResult> EditFormAsync(FormResponseEditDto formDto,
-			Dictionary<Guid, List<Guid>> checkboxSelections,
-			Dictionary<Guid, Guid?> dropdownSelections)
+			Dictionary<Guid, List<Guid>> allSelections)
 		{
-
-			PopulateSelectedOptions(formDto.Answers, checkboxSelections, dropdownSelections);
 
 			var result = await _validationService.ValidateAsync(formDto);
 			if (!result.IsValid)
@@ -121,18 +127,10 @@ namespace FormEase.Services.Services.Concrete.WebApplication
 
 					HashSet<Guid> incomingOptIds;
 
-					if (checkboxSelections.TryGetValue(questionId, out var checkedIds) == true)
-					{
-						incomingOptIds = new HashSet<Guid>(checkedIds);
-					}
-					else if (dropdownSelections.TryGetValue(questionId, out var selectedId) == true && selectedId.HasValue)
-					{
-						incomingOptIds = new HashSet<Guid> { selectedId.Value };
-					}
-					else
-					{
-						incomingOptIds = new HashSet<Guid>();
-					}
+					allSelections.TryGetValue(questionId, out var incomingOptList);
+
+					incomingOptIds = (incomingOptList ?? new List<Guid>()).ToHashSet();
+					 
 
 					var existingOptIds = answer.SelectedOptions.Select(x => x.OptionId).ToHashSet();
 
@@ -158,10 +156,10 @@ namespace FormEase.Services.Services.Concrete.WebApplication
 				if (optionsToAdd.Any())
 					await _selectedOptionRepository.AddRangeAsync(optionsToAdd);
 
-				foreach (var ans in existingForm.Answers)
+				foreach (var answer in existingForm.Answers)
 				{
-					var dto = formDto.Answers.First(a => a.QuestionId == ans.QuestionId);
-					ans.Value = dto.Value;
+					var dto = formDto.Answers.First(a => a.QuestionId == answer.QuestionId);
+					answer.Value = dto.Value;
 				}
 
 

@@ -1,7 +1,7 @@
-﻿@page "/edit-template/{TemplateId}/{UserId}"
+﻿@* @page "/edit-template/{TemplateId}/{UserId}" *@
 
 
-@attribute [Authorize]
+@attribute [Authorize(Policy = "IsNotBlocked")]
 @rendermode InteractiveServer
 @inject PermissionService PermissionService
 @inject ITemplateService TemplateService
@@ -17,7 +17,7 @@
 <PageTitle>Edit Template</PageTitle>
 
 <RadzenRow class="rz-mb-5">
-	<RadzenColumn>
+	@* <RadzenColumn>
 		<div class="rz-m-2">
 			<RadzenBreadCrumb>
 				<RadzenBreadCrumbItem Path="/" Icon="home" />
@@ -25,7 +25,7 @@
 				<RadzenBreadCrumbItem Icon="edit" />
 			</RadzenBreadCrumb>
 		</div>
-	</RadzenColumn>
+	</RadzenColumn> *@
 </RadzenRow>
 
 @if (errorMessage is not null)

@@ -38,7 +38,7 @@ namespace FormEase.UI
 				connectionString = ConnectionStringHandler.GetRenderConnectionString();
 			}
 
-			builder.Services.AddDbContext<ApplicationDbContext>(options =>
+			builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 				options.UseNpgsql(connectionString, x => x.MigrationsAssembly("FormEase.Infrastructure.PostgreSQL")));
 			builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 			#endregion

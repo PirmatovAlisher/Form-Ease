@@ -1,4 +1,4 @@
-﻿@page "/edit-form/{FormId}/{UserId}"
+﻿@page "/edit-form/{FormId}/{UserId?}"
 
 
 @attribute [Authorize(Policy = "IsNotBlocked")]
@@ -173,11 +173,8 @@
 		</RadzenStack>
 		<!-- Submit Button-->
 		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
-			@if (isReadOnly)
-			{
-				<RadzenButton Text="Publish" ButtonType="ButtonType.Submit" Icon="upload_2" class="no-uppercase rz-border-radius-7"
-							  Disabled="isReadOnly" Variant="Variant.Filled" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Size="ButtonSize.Medium" />
-			}
+			<RadzenButton Text="Publish" ButtonType="ButtonType.Submit" Icon="upload_2" class="no-uppercase rz-border-radius-7"
+						  Disabled="isReadOnly" Variant="Variant.Filled" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Size="ButtonSize.Medium" />
 		</RadzenStack>
 	</RadzenStack>
 </RadzenTemplateForm>
@@ -233,8 +230,18 @@
 
 	private async Task OnSubmit(FormResponseEditDto formResponse)
 	{
+		var allSelections = new Dictionary<Guid, List<Guid>>();
 
-		var result = await FormService.EditFormAsync(formResponse, checkboxSelections, dropdownSelections);
+		foreach (var kv in checkboxSelections)
+			allSelections[kv.Key] = new List<Guid>(kv.Value);
+
+		foreach (var kv in dropdownSelections)
+		{
+			if (kv.Value.HasValue)
+				allSelections[kv.Key] = new List<Guid> { kv.Value.Value };
+		}
+
+		var result = await FormService.EditFormAsync(formResponse, allSelections);
 
 		if (!result.IsValid)
 		{

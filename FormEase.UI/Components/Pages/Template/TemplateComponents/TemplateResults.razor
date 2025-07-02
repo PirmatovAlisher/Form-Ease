@@ -1,0 +1,68 @@
+﻿@attribute [Authorize(Policy = "IsNotBlocked")]
+@rendermode InteractiveServer
+@inject PermissionService PermissionService
+@inject IFormService FormService
+@inject ITemplateService TemplateService
+@inject NotificationService NotificationService
+@inject NavigationManager NavManager
+
+
+<RadzenCard Variant="Variant.Filled" Style="height:730px" class="rz-shadow-6">
+	<RadzenDataGrid @ref="grid" TItem="FormResponseReportDto" Data="forms" @bind-Value=@selectedForms RowSelect="OnSelect"
+					AllowRowSelectOnRowClick="true" SelectionMode="DataGridSelectionMode.Multiple" class="rz-border-radius-2"
+					AllowSorting="true" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" PageSize="10">
+
+		<Columns>
+			<!-- Template Title -->
+			<RadzenDataGridColumn TItem="FormResponseReportDto" Title="Respondent" Width="80px">
+				<Template Context="form">
+					@form.Respondent.FullName
+				</Template>
+			</RadzenDataGridColumn>
+			<!-- Form Created Time -->
+			<RadzenDataGridColumn Property="@nameof(FormResponseReportDto.CreatedAt)" TItem="FormResponseReportDto" Title="Created" Width="60px">
+				<Template Context="from">
+					@from.CreatedAt.ToString("ddd MMM d, yyyy-H:mm")
+				</Template>
+			</RadzenDataGridColumn>
+
+			<!-- Form Updated Time -->
+			<RadzenDataGridColumn Property="@nameof(FormResponseReportDto.UpdatedAt)" TItem="FormResponseReportDto" Title="Updated" Width="60px">
+				<Template Context="from">
+					@from.UpdatedAt.ToString("ddd MMM d, yyyy-H:mm")
+				</Template>
+			</RadzenDataGridColumn>
+		</Columns>
+	</RadzenDataGrid>
+</RadzenCard>
+
+
+
+ 
+
+
+@code {
+
+	[Parameter]
+	public string TemplateId { get; set; }
+
+	private List<FormResponseReportDto> forms = new();
+
+
+	RadzenDataGrid<FormResponseReportDto> grid;
+	private IList<FormResponseReportDto> selectedForms = new List<FormResponseReportDto>();
+
+	protected override async Task OnInitializedAsync()
+	{
+		forms = await FormService.GetFormsByTemplateId(TemplateId);
+		StateHasChanged();
+	}
+
+	private void OnSelect(FormResponseReportDto selected)
+	{
+		var formId = selected.Id;
+
+		NavManager.NavigateTo($"/edit-form/{formId}");
+	}
+
+}

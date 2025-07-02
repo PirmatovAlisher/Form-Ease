@@ -135,7 +135,7 @@
 			var hasPermission = await PermissionService.CanEditTemplate(templateId);
 			if (hasPermission)
 			{
-				NavManager.NavigateTo($"/edit-template/{templateId}/{UserId}");
+				NavManager.NavigateTo($"/template-panel/{templateId}/{UserId}");
 			}
 		}
 	}

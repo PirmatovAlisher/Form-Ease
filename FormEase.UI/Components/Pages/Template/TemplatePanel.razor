@@ -1,0 +1,66 @@
+﻿@page "/template-panel/{TemplateId}/{UserId}"
+
+
+@attribute [Authorize(Policy = "IsNotBlocked")]
+@rendermode InteractiveServer
+@inject IFormService FormService
+@inject NavigationManager NavManager
+
+
+
+
+<PageTitle>Template Panel</PageTitle>
+
+
+<RadzenRow class="rz-mb-5">
+	<RadzenColumn>
+		<div class="rz-m-2">
+			<RadzenBreadCrumb>
+				<RadzenBreadCrumbItem Path="/" Icon="home" />
+				<RadzenBreadCrumbItem Path="@($"/user-page/{UserId}")" Icon="home_storage" />
+				<RadzenBreadCrumbItem Icon="edit" />
+			</RadzenBreadCrumb>
+		</div>
+	</RadzenColumn>
+</RadzenRow>
+
+
+<RadzenTabs @bind-SelectedIndex=@selectedIndex class="no-uppercase-tabs">
+	<Tabs>
+		<RadzenTabsItem Text="Edit">
+
+			<EditTemplate TemplateId="@TemplateId" />
+
+		</RadzenTabsItem>
+		<RadzenTabsItem Text="Results">
+			<TemplateResults TemplateId="@TemplateId" />
+		</RadzenTabsItem>
+		<RadzenTabsItem Text="Aggregation">
+
+			Template Aggregation
+
+		</RadzenTabsItem>
+	</Tabs>
+</RadzenTabs>
+
+
+
+
+
+
+
+
+
+
+@code {
+	[Parameter]
+	public string TemplateId { get; set; }
+
+	[Parameter]
+	public string? UserId { get; set; }
+
+	int selectedIndex = 0;
+
+
+}
+
