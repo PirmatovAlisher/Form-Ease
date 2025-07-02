@@ -28,7 +28,7 @@
 	</RadzenRow>
 
 	<RadzenDataGrid @ref="grid" TItem="TemplateListDto" Data="templates" @bind-Value=@selectedTemps
-					AllowRowSelectOnRowClick="true" SelectionMode="DataGridSelectionMode.Multiple"
+					AllowRowSelectOnRowClick="true" SelectionMode="DataGridSelectionMode.Multiple" class="rz-border-radius-2"
 					AllowSorting="true" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" PageSize="8">
 
 		<Columns>
@@ -50,19 +50,19 @@
 			<!-- Template Title -->
 			<RadzenDataGridColumn Property="@nameof(TemplateListDto.Title)" TItem="TemplateListDto" Title="Title" Width="60px">
 				<Template Context="temp">
-					@temp.Title
+					@GetTruncatedText(temp.Title, 25)
 				</Template>
 			</RadzenDataGridColumn>
 
 			<!-- Template Description -->
-			<RadzenDataGridColumn Property="@nameof(TemplateListDto.Description)" TItem="TemplateListDto" Title="Description" Width="80px">
+			<RadzenDataGridColumn Property="@nameof(TemplateListDto.Description)" TItem="TemplateListDto" Title="Description" Width="120px">
 				<Template Context="temp">
-					<RadzenMarkdown Text="@temp.Description" />
+					<RadzenMarkdown Text="@GetTruncatedText(temp.Description, 30)" />
 				</Template>
 			</RadzenDataGridColumn>
 
 			<!-- Template IsPublic -->
-			<RadzenDataGridColumn Property="@nameof(TemplateListDto.IsPublic)" TItem="TemplateListDto" Title="Status" Width="80px">
+			<RadzenDataGridColumn Property="@nameof(TemplateListDto.IsPublic)" TItem="TemplateListDto" Title="Status" Width="35px">
 				<Template Context="temp">
 					@if (@temp.IsPublic)
 					{
@@ -78,7 +78,7 @@
 			</RadzenDataGridColumn>
 
 			<!-- Template Topic -->
-			<RadzenDataGridColumn TItem="TemplateListDto" Title="Topic" Width="80px">
+			<RadzenDataGridColumn TItem="TemplateListDto" Title="Topic" Width="60px">
 				<Template Context="temp">
 					@temp.Topic.Name
 				</Template>
@@ -126,7 +126,7 @@
 		NavManager.NavigateTo($"/create-template/{UserId}");
 	}
 
-	private async void EditTemp()
+	private async Task EditTemp()
 	{
 		if (selectedTemps.Count == 1)
 		{
@@ -184,5 +184,10 @@
 		// Optional: Force grid refresh if needed
 		grid.Reload();
 		StateHasChanged();
+	}
+
+	private string GetTruncatedText(string text, int maxLength = 30)
+	{
+		return text.Length > maxLength ? text.Substring(0, maxLength) + "..." : text;
 	}
 }

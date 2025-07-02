@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
+using FormEase.Services.FluentValidation.WebApplication.AnswerValidation;
+using FormEase.Services.FluentValidation.WebApplication.FormValidation;
 using FormEase.Services.FluentValidation.WebApplication.QuestionOptionValidation;
 using FormEase.Services.FluentValidation.WebApplication.QuestionValidation;
 using FormEase.Services.FluentValidation.WebApplication.TemplateValidation;
@@ -37,6 +39,9 @@ namespace FormEase.Services.Extensions.WebApplication
 			services.AddValidatorsFromAssemblyContaining<QuestionModelValidator>();
 			services.AddValidatorsFromAssemblyContaining<QuestionOptionDtoValidator>();
 			services.AddValidatorsFromAssemblyContaining<QuestionOptionModelValidator>();
+			services.AddValidatorsFromAssemblyContaining<FormCreateValidatior>();
+			services.AddValidatorsFromAssemblyContaining<FormEditValidator>();
+			services.AddValidatorsFromAssemblyContaining<AnswerValidator>();
 
 			return services;
 		}

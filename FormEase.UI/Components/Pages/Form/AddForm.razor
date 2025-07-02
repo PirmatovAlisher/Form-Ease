@@ -1,4 +1,4 @@
-﻿@page "/form/{Id}"
+﻿@page "/form-create/{Id}"
 
 
 
@@ -189,7 +189,7 @@
 	private FormResponseDto formResponse = new();
 	private bool isAuthenticated { get; set; } = false;
 
-	IEnumerable<Guid> checkboxValues = new Guid[] { };
+
 	private Dictionary<Guid, List<Guid>> checkboxSelections = new();
 	private Dictionary<Guid, Guid?> dropdownSelections;
 
@@ -242,6 +242,14 @@
 		}
 
 		var userId = await PermissionService.GetCurrentUserId();
+
+		var hasUserFilled = await PermissionService.HasUserFilledFormAsync(userId, template.Id);
+		if (hasUserFilled)
+		{
+			Notify("You already have filled the form", NotificationSeverity.Error);
+			return;
+		}
+
 		formResponse.RespondentId = userId;
 		formResponse.TemplateId = template.Id;
 
@@ -253,6 +261,10 @@
 			Notify(errorMessage, NotificationSeverity.Error);
 
 			return;
+		}
+		else
+		{
+			Notify("Form was submitted Successfully", NotificationSeverity.Success);			
 		}
 
 		// yield back to Blazor so it can send the next heartbeat
@@ -294,7 +306,7 @@
 			AnswerId   = answer.Id,
 			OptionId   = newValue.Value
 		  }
-					}
+								}
 				: new List<SelectedOptionDto>();
 	}
 

@@ -64,6 +64,11 @@ namespace FormEase.Services.Services.Concrete.Identity
 			return false;
 		}
 
+		public async Task<bool> HasUserFilledFormAsync(string userId, Guid templateId)
+		{
+			return await _formResponseRepository.HasUserSubmittedTemplateAsync(userId, templateId);
+		}
+
 		public async Task<bool> IsUserAuthenticated()
 		{
 			var principal = _httpContextAccessor.HttpContext?.User;

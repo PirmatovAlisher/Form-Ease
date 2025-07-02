@@ -11,7 +11,7 @@
 		@foreach (var template in LatestTemplates)
 		{
 			<RadzenColumn>
-				<NavLink class="text-decoration-none" href="@($"/form/{template.Id}")">
+				<NavLink class="text-decoration-none" href="@($"/form-create/{template.Id}")">
 					<RadzenCard Variant="Variant.Filled" Style="width: 25%; min-width: 280px;" class="rz-m-2 rz-border-radius-5">
 						<RadzenStack Orientation="Orientation.Vertical" Style="width: 100%;" Gap="0.5rem">
 							@if (!string.IsNullOrWhiteSpace(template.ImageUrl))

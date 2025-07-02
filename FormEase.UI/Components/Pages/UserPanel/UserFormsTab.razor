@@ -1,5 +1,200 @@
-﻿<h3>User Forms Tab</h3>
+﻿@inject IFormService FormService
+@inject PermissionService PermissionService
+@inject NotificationService NotificationService
+@inject NavigationManager NavManager
+
+<RadzenCard Variant="Variant.Filled" Style="height:730px" class="rz-shadow-6">
+	<RadzenRow JustifyContent="JustifyContent.SpaceBetween" class="rz-mb-5">
+		<RadzenCard Variant="Variant.Outlined" class="rz-border-radius-5">
+
+			<!-- Filter Presets -->
+			<RadzenStack Orientation="Orientation.Horizontal" Gap="15px">
+
+				<RadzenButton Click="EditForm"
+							  Icon="edit" class="rz-border-radius-5" Disabled="@(selectedForms.Count != 1)"
+							  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Warning" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+
+				<RadzenButton Click="@RemoveForms"
+							  Icon="delete" class="rz-border-radius-5" Disabled="@(selectedForms.Count == 0)"
+							  Variant="Variant.Filled" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Lighter" Size="ButtonSize.Medium" />
+
+			</RadzenStack>
+		</RadzenCard>
+	</RadzenRow>
+
+	<RadzenDataGrid @ref="grid" TItem="FormResponseListDto" Data="forms" @bind-Value=@selectedForms
+					AllowRowSelectOnRowClick="true" SelectionMode="DataGridSelectionMode.Multiple" class="rz-border-radius-2"
+					AllowSorting="true" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" PageSize="8">
+		<Columns>
+
+			<!-- Selection Check box -->
+			<RadzenDataGridColumn TItem="FormResponseListDto" Sortable="false" Filterable="false" Width="25px">
+				<HeaderTemplate>
+					<RadzenCheckBox TValue="bool"
+									Value="@IsAllSelected"
+									Change="@(async _ => await ToggleSelectAll())" />
+				</HeaderTemplate>
+				<Template Context="form">
+					<RadzenCheckBox TValue="bool"
+									Value="@(selectedForms.Contains(form))"
+									Change="@(_ => ToggleSelection(form))" />
+				</Template>
+			</RadzenDataGridColumn>
+
+			<!-- Template Title -->
+			<RadzenDataGridColumn TItem="FormResponseListDto" Title="Title" Width="80px">
+				<Template Context="form">
+					@GetTruncatedText(form.Template.Title, 35)
+				</Template>
+			</RadzenDataGridColumn>
+
+			<!-- Template Description -->
+			<RadzenDataGridColumn TItem="FormResponseListDto" Title="Description" Width="150px">
+				<Template Context="form">
+					@GetTruncatedText(form.Template.Description, 50)
+				</Template>
+			</RadzenDataGridColumn>
+
+			<!-- Template IsPublic -->
+			<RadzenDataGridColumn TItem="FormResponseListDto" Title="Status" Width="35px">
+				<Template Context="form">
+					@if (form.Template.IsPublic)
+					{
+						<p>Public</p>
+					}
+					else
+					{
+						<p>Private</p>
+					}
+
+				</Template>
+
+			</RadzenDataGridColumn>
+
+			<!-- Template Topic -->
+			<RadzenDataGridColumn TItem="FormResponseListDto" Title="Topic" Width="60px">
+				<Template Context="form">
+					@form.Template.Topic.Name
+				</Template>
+			</RadzenDataGridColumn>
+
+			<!-- Form Created Time -->
+			<RadzenDataGridColumn Property="@nameof(FormResponseListDto.CreatedAt)" TItem="FormResponseListDto" Title="Created" Width="60px">
+				<Template Context="from">
+					@from.CreatedAt.ToString("ddd MMM d, yyyy-H:mm")
+				</Template>
+			</RadzenDataGridColumn>
+
+			<!-- Form Updated Time -->
+			<RadzenDataGridColumn Property="@nameof(FormResponseListDto.UpdatedAt)" TItem="FormResponseListDto" Title="Updated" Width="60px">
+				<Template Context="from">
+					@from.UpdatedAt.ToString("ddd MMM d, yyyy-H:mm")
+				</Template>
+			</RadzenDataGridColumn>
+		</Columns>
+	</RadzenDataGrid>
+
+</RadzenCard>
 
 @code {
+	[Parameter]
+	public string? UserId { get; set; }
 
+	RadzenDataGrid<FormResponseListDto> grid;
+
+	private List<FormResponseListDto> forms = new();
+	private IList<FormResponseListDto> selectedForms = new List<FormResponseListDto>();
+
+	private bool IsAllSelected =>
+		forms.Any() && selectedForms.Count() == forms.Count();
+
+	protected override async Task OnInitializedAsync()
+	{
+		forms = await FormService.GetFormsForTableAsync(UserId);
+	}
+
+
+
+
+	private async Task EditForm()
+	{
+		if (selectedForms.Count == 1)
+		{
+			var fromId = selectedForms.First().Id;
+
+			var hasPermission = await PermissionService.CanEditResponse(fromId);
+			if (hasPermission)
+			{
+				NavManager.NavigateTo($"/edit-form/{fromId}/{UserId}");
+			}
+		}
+	}
+
+	private async Task RemoveForms()
+	{
+		var formIds = selectedForms.Select(fr => fr.Id).ToList();
+
+		var result = await FormService.RemoveFormsAsync(formIds);
+		if (result.IsValid)
+		{
+			Notify("Forms were deleted successfully", NotificationSeverity.Success);
+		}
+		else
+		{
+			Notify("Error occurred while deleting", NotificationSeverity.Error);
+		}
+
+		selectedForms = new List<FormResponseListDto>();
+
+		var toRemove = forms.Where(f => formIds.Contains(f.Id)).ToList();
+		forms = forms.Except(toRemove).ToList();
+
+		await grid.Reload();
+		StateHasChanged();
+	}
+
+	private async Task ToggleSelectAll()
+	{
+		if (IsAllSelected)
+		{
+			selectedForms = new List<FormResponseListDto>();
+		}
+		else
+		{
+			selectedForms = new List<FormResponseListDto>(forms);
+		}
+		await grid.Reload();
+		StateHasChanged();
+	}
+
+	private void ToggleSelection(FormResponseListDto form)
+	{
+		if (selectedForms.Contains(form))
+		{
+			selectedForms.Remove(form);
+		}
+		else
+		{
+			selectedForms.Add(form);
+		}
+
+		// Optional: Force grid refresh if needed
+		grid.Reload();
+		StateHasChanged();
+	}
+
+	private string GetTruncatedText(string text, int maxLength = 30)
+	{
+		return text.Length > maxLength ? text.Substring(0, maxLength) + "..." : text;
+	}
+
+	private void Notify(string message, NotificationSeverity type)
+	{
+		NotificationService.Notify(new NotificationMessage
+			{
+				Severity = type,
+				Duration = 10000,
+				SummaryContent = ns =>@<RadzenText TextStyle="TextStyle.Subtitle1">@message</RadzenText>
+		});
+	}
 }

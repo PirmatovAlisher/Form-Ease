@@ -17,12 +17,22 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 		public async Task<FormResponse> GetByIdAsync(Guid id)
 		{
 			var form = await _context.FormResponses
-				.Include(fr => fr.Answers)
-				.ThenInclude(a => a.Question)
 				.Include(fr => fr.Template)
-				.ThenInclude(t => t.Questions)
-				.Include(fr => fr.Respondent)
+				.ThenInclude(t => t.Questions.OrderBy(q => q.Order))
+				.ThenInclude(q => q.Options)
+				.Include(fr => fr.Answers)
+				.ThenInclude(a => a.SelectedOptions)
 				.FirstOrDefaultAsync(fr => fr.Id == id);
+
+			return form;
+		}
+
+		public async Task<FormResponse> GetWithAnswersAndSelectionsAsync(Guid formId)
+		{
+			var form = await _context.FormResponses
+				.Include(fr => fr.Answers)
+				.ThenInclude(a => a.SelectedOptions)
+				.FirstOrDefaultAsync(fr => fr.Id == formId);
 
 			return form;
 		}
@@ -39,16 +49,24 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 			return forms;
 		}
 
-		public async Task<List<FormResponse>> GetByRespondentIdAsync(string respondentId)
+		public async Task<List<FormResponse>> GetByRespondentIdForTableAsync(string respondentId)
 		{
 			var forms = await _context.FormResponses
+				.AsNoTracking()
 				.Where(fr => fr.RespondentId == respondentId)
-				.Include(fr => fr.Respondent)
-				.Include(fr => fr.Answers)
-				.OrderBy(fr => fr.CreatedAt)
+				.Include(fr => fr.Template)
+				.ThenInclude(t => t.Topic)
+				.OrderByDescending(fr => fr.CreatedAt)
 				.ToListAsync();
 
 			return forms;
+		}
+
+
+		public async Task<bool> HasUserSubmittedTemplateAsync(string userId, Guid templateId)
+		{
+			return await _context.FormResponses
+				.AnyAsync(fr => fr.RespondentId == userId && fr.TemplateId == templateId);
 		}
 
 

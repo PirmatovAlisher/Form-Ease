@@ -6,8 +6,10 @@ namespace FormEase.Core.Interfaces.WebApplication.CoreModels
 	{
 		Task<FormResponse> GetByIdAsync(Guid id);
 		Task<List<FormResponse>> GetByTemplateIdAsync(Guid templateId);
-		Task<List<FormResponse>> GetByRespondentIdAsync(string respondentId);
+		Task<List<FormResponse>> GetByRespondentIdForTableAsync(string respondentId);
 		Task<string> GetRespondentIdByFormId(Guid formId);
+		Task<FormResponse> GetWithAnswersAndSelectionsAsync(Guid formId);
+		Task<bool> HasUserSubmittedTemplateAsync(string userId, Guid templateId);
 
 		Task AddAsync(FormResponse formResponse);
 		Task UpdateAsync(FormResponse formResponse);

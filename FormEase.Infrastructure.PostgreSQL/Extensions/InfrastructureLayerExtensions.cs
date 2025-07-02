@@ -25,6 +25,7 @@ namespace FormEase.Infrastructure.PostgreSQL.Extensions
             services.AddScoped<ITemplateTagRepository, TemplateTagRepository>();
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<ILikeRepository, LikeRepository>();
+            services.AddScoped<ISelectedOptionRepository, SelectedOptionRepository>();
 
             return services;
         }
