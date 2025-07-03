@@ -39,6 +39,19 @@ namespace FormEase.Services.Services.Concrete.WebApplication
 			return dtos;
 		}
 
+		public async Task<List<TemplateListDto>> GetPopularPublicTemplates(int limit = 5)
+		{
+			var templates = await _templateRepo.GetPopularPublicTemplatesAsync(limit);
+
+			var dtos = _mapper.Map<List<TemplateListDto>>(templates);
+
+			if (dtos != null)
+			{
+				return dtos;
+			}
+			return new();
+		}
+
 		public async Task<ValidationResult> AddAsync(TemplateCreateDto templateDto, List<QuestionDto> questions, List<UserDisplayDto> users, List<string> tagNames)
 		{
 			var result = await _validationService.ValidateAsync(templateDto);

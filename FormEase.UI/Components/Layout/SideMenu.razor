@@ -6,9 +6,6 @@
 <RadzenStack Orientation="Orientation.Vertical" Gap="15px" AlignItems="AlignItems.Normal" JustifyContent="JustifyContent.Start">
 	<h3>Side Menu</h3>
 	<RadzenLink Path="/" Text="Home" />
-	<RadzenLink Path="counter" Text="Counter" />
-	<RadzenLink Path="/auth" Text="Auth" />
-	<RadzenLink Path="/member" Text="Member" />
 
 	<AuthorizeView Roles="Admin">
 		<RadzenLink Path="/admin/users" Text="Admin" />
@@ -23,7 +20,7 @@
 				<input name="returnUrl" type="hidden" value="@currentUrl" />
 				<input name="__RequestVerificationToken" type="hidden" value="@antiforgeryToken" />
 				@* <button type="submit" class="btn btn-link">Logout</button> *@
-				<RadzenButton ButtonType="ButtonType.Submit" Text="Logout" Icon="logout" Variant="Variant.Flat" Shade="Shade.Lighter" ButtonStyle="ButtonStyle.Base" />
+				<RadzenButton ButtonType="ButtonType.Submit" Text="Logout" Variant="Variant.Text" Size="ButtonSize.Medium" ButtonStyle="ButtonStyle.Base" />
 			</form>
 		</Authorized>
 		<NotAuthorized>
@@ -35,8 +32,8 @@
 
 	<RadzenPanelMenu Style="width:100%">
 		<RadzenPanelMenuItem Text="Language" Icon="language">
-			<RadzenPanelMenuItem Text="Uz" Path="counter" Icon="account_circle"></RadzenPanelMenuItem>
-			<RadzenPanelMenuItem Text="Eng" Path="weather" Icon="perm_media"></RadzenPanelMenuItem>
+			<RadzenPanelMenuItem Text="Uz" Path="/" Icon="account_circle"></RadzenPanelMenuItem>
+			<RadzenPanelMenuItem Text="Eng" Path="/" Icon="perm_media"></RadzenPanelMenuItem>
 		</RadzenPanelMenuItem>
 	</RadzenPanelMenu>
 </RadzenStack>

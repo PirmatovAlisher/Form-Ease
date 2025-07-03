@@ -7,7 +7,7 @@ namespace FormEase.Core.Interfaces.WebApplication.CoreModels
 		Task<Template> GetByIdAsync(Guid id);
 		Task<string> GetCreatorIdByTemplateId(Guid templateId);
 		Task<Template> GetByIdWithDetailsAsync(Guid id);
-		Task<List<Template>> GetPublicTemplatesAsync();
+		Task<List<Template>> GetPopularPublicTemplatesAsync(int limit);
 		Task<List<Template>> GetLatestTemplatesAsync(int limit);
 		Task<List<Template>> GetByCreatorIdWithDetailsAsync(string creatorId);
 		Task<List<Template>> GetByCreatorIdAsync(string creatorId);

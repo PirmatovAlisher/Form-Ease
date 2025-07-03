@@ -41,7 +41,47 @@
 		<RadzenCard>
 			<RadzenText Text="Popular Templates" TextStyle="TextStyle.Subtitle2" />
 
-			Popular Templates
+			<RadzenDataGrid @ref="grid" TItem="TemplateListDto" Data="PopularTemplates" @bind-Value=@selectedTemps RowSelect="OnSelect"
+							AllowRowSelectOnRowClick="true" SelectionMode="DataGridSelectionMode.Multiple" class="rz-border-radius-2"
+							AllowSorting="true" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" PageSize="10">
+
+				<Columns>
+					<!-- Template Title -->
+					<RadzenDataGridColumn Property="@nameof(TemplateListDto.Title)" TItem="TemplateListDto" Title="Title" Width="60px">
+						<Template Context="temp">
+							@GetTruncatedText(temp.Title, 25)
+						</Template>
+					</RadzenDataGridColumn>
+
+					<!-- Template Description -->
+					<RadzenDataGridColumn Property="@nameof(TemplateListDto.Description)" TItem="TemplateListDto" Title="Description" Width="120px">
+						<Template Context="temp">
+							<RadzenMarkdown Text="@GetTruncatedText(temp.Description, 30)" />
+						</Template>
+					</RadzenDataGridColumn>
+					 
+					<!-- Template Topic -->
+					<RadzenDataGridColumn TItem="TemplateListDto" Title="Topic" Width="60px">
+						<Template Context="temp">
+							@temp.Topic.Name
+						</Template>
+					</RadzenDataGridColumn>
+
+					<!-- Template Created Time -->
+					<RadzenDataGridColumn Property="@nameof(TemplateListDto.CreatedAt)" TItem="TemplateListDto" Title="Created" Width="60px">
+						<Template Context="temp">
+							@temp.CreatedAt.ToString("ddd MMM d, yyyy-H:mm")
+						</Template>
+					</RadzenDataGridColumn>
+
+					<!-- Template Updated Time -->
+					<RadzenDataGridColumn Property="@nameof(TemplateListDto.UpdatedAt)" TItem="TemplateListDto" Title="Updated" Width="60px">
+						<Template Context="temp">
+							@temp.UpdatedAt.ToString("ddd MMM d, yyyy-H:mm")
+						</Template>
+					</RadzenDataGridColumn>
+				</Columns>
+			</RadzenDataGrid>
 		</RadzenCard>
 	</RadzenStack>
 	<RadzenStack Orientation="Orientation.Horizontal">
@@ -50,12 +90,12 @@
 			<div style="display: flex; flex-wrap: wrap;">
 				@foreach (var tag in PopularTags)
 				{
-					<RadzenButton Text="@tag.Name" 
-					Click="@(() => NavigateToTagSearch(tag.Id))" 
-					ButtonStyle="ButtonStyle.Base" 
-					Variant="Variant.Flat"  
-					class="rz-m-1 no-uppercase rz-border-radius-5" />
- 				}
+					<RadzenButton Text="@tag.Name"
+								  Click="@(() => NavigateToTagSearch(tag.Id))"
+								  ButtonStyle="ButtonStyle.Base"
+								  Variant="Variant.Flat"
+								  class="rz-m-1 no-uppercase rz-border-radius-5" />
+				}
 			</div>
 		</RadzenCard>
 	</RadzenStack>
@@ -64,18 +104,36 @@
 @code {
 
 	private List<TemplateDisplayDto> LatestTemplates = new();
+	private List<TemplateListDto> PopularTemplates = new();
 	private List<Tag> PopularTags = new();
+
+	RadzenDataGrid<TemplateListDto> grid;
+
+	private IList<TemplateListDto> selectedTemps = new List<TemplateListDto>();
 
 
 	protected override async Task OnInitializedAsync()
 	{
 		LatestTemplates = await TemplateService.GetLatestTemplatesAsync(6);
+		PopularTemplates = await TemplateService.GetPopularPublicTemplates();
 		PopularTags = await TemplateSearchService.GetPopularTagsAsync();
+	}
+
+	private void OnSelect(TemplateListDto selected)
+	{
+		var tempId = selected.Id;
+
+		Navigation.NavigateTo($"/form-create/{tempId}");
 	}
 
 	private void NavigateToTagSearch(Guid tagId)
 	{
 		Navigation.NavigateTo($"/search?tagId={tagId}");
+	}
+
+	private string GetTruncatedText(string text, int maxLength = 30)
+	{
+		return text.Length > maxLength ? text.Substring(0, maxLength) + "..." : text;
 	}
 }
 

@@ -6,11 +6,13 @@
 <RadzenHeader>
 
 	<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
-		<RadzenButton Icon="menu" Click="@(OpenSideDialog)" Variant="Variant.Text" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Large" />
+		<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+			<RadzenButton Icon="menu" Click="@(OpenSideDialog)" Variant="Variant.Text" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Large" />
+			<RadzenLink Path="/" Icon="home" Style="text-decoration: none !important; font-size:24px;"  />
+		</RadzenStack>
 		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
 			<RadzenTextBox @bind-Value="@SearchTerm"
 						   @onkeyup="HandleSearchInput"
-						   
 						   Placeholder="Search templates..."
 						   Style="width: 100%;" />
 

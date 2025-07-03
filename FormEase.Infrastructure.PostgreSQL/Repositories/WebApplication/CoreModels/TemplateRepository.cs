@@ -72,19 +72,18 @@ namespace FormEase.Infrastructure.PostgreSQL.Repositories.WebApplication.CoreMod
 			return creatorTemps;
 		}
 
-		public async Task<List<Template>> GetPublicTemplatesAsync()
+		public async Task<List<Template>> GetPopularPublicTemplatesAsync(int limit)
 		{
-			var publicTemps = await _context.Templates
+			var templates = await _context.Templates
 				.AsNoTracking()
 				.Where(t => t.IsPublic == true)
-				.Include(t => t.Creator)
 				.Include(t => t.Topic)
-				.Include(t => t.TemplateTags)
-				.ThenInclude(tt => tt.Tag)
-				.OrderBy(t => t.CreatedAt)
+				.OrderByDescending(t => t.FormResponses.Count)
+				.ThenByDescending(t => t.CreatedAt)
+				.Take(limit)
 				.ToListAsync();
 
-			return publicTemps;
+			return templates;
 		}
 
 		public async Task<List<Template>> GetAccessibleTemplatesAsync(string userId)
