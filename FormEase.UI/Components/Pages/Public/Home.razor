@@ -2,6 +2,8 @@
 
 @rendermode InteractiveServer
 @inject ITemplateService TemplateService
+@inject TemplateSearchService TemplateSearchService
+@inject NavigationManager Navigation
 
 <PageTitle>Home</PageTitle>
 
@@ -43,8 +45,18 @@
 		</RadzenCard>
 	</RadzenStack>
 	<RadzenStack Orientation="Orientation.Horizontal">
-		<RadzenCard>
+		<RadzenCard Variant="Variant.Outlined" class=" rz-border-radius-2" Style="width: 100%; min-width: 300px;">
 			Tag Cloud
+			<div style="display: flex; flex-wrap: wrap;">
+				@foreach (var tag in PopularTags)
+				{
+					<RadzenButton Text="@tag.Name" 
+					Click="@(() => NavigateToTagSearch(tag.Id))" 
+					ButtonStyle="ButtonStyle.Base" 
+					Variant="Variant.Flat"  
+					class="rz-m-1 no-uppercase rz-border-radius-5" />
+ 				}
+			</div>
 		</RadzenCard>
 	</RadzenStack>
 </RadzenStack>
@@ -52,11 +64,18 @@
 @code {
 
 	private List<TemplateDisplayDto> LatestTemplates = new();
+	private List<Tag> PopularTags = new();
 
 
 	protected override async Task OnInitializedAsync()
 	{
 		LatestTemplates = await TemplateService.GetLatestTemplatesAsync(6);
+		PopularTags = await TemplateSearchService.GetPopularTagsAsync();
+	}
+
+	private void NavigateToTagSearch(Guid tagId)
+	{
+		Navigation.NavigateTo($"/search?tagId={tagId}");
 	}
 }
 

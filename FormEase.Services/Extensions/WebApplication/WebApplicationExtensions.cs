@@ -18,6 +18,7 @@ namespace FormEase.Services.Extensions.WebApplication
 		public static IServiceCollection LoadWebApplicationExtensions(this IServiceCollection services)
 		{
 			services.AddScoped<PermissionService>();
+			services.AddScoped<TemplateSearchService>();
 			services.AddScoped<IImageUploadService, ImageUploadService>();
 			services.AddScoped<ITemplateService, TemplateService>();
 			services.AddScoped<IUserService, UserService>();

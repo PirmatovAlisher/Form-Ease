@@ -55,11 +55,9 @@ namespace FormEase.Services.Services.Concrete.WebApplication
 			}
 			catch(DbUpdateConcurrencyException ex)
 			{
-				result.Errors.Add(new ValidationFailure
-				{
-					PropertyName = string.Empty,
-					ErrorMessage = "An error occurred while updating the template. Please try again."
-				});
+				Console.Error.WriteLine(ex);
+				result.Errors.Add(new ValidationFailure(string.Empty,
+							  $"Error saving template: {ex.Message}"));
 			}
 			catch (Exception ex)
 			{

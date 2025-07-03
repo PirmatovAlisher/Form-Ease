@@ -1,0 +1,140 @@
+﻿@page "/search"
+
+
+@rendermode InteractiveServer
+@inject TemplateSearchService TemplateSearchService
+@inject NavigationManager Navigation
+
+
+<PageTitle>Search Results</PageTitle>
+
+@if (!string.IsNullOrWhiteSpace(searchQuery))
+{
+	<RadzenText TextStyle="TextStyle.Subtitle2">Search Results for "@searchQuery</RadzenText>
+}
+else if (!string.IsNullOrWhiteSpace(tagName))
+{
+	<RadzenText TextStyle="TextStyle.Subtitle2">Templates tagged with "@tagName"</RadzenText>
+}
+else
+{
+	<RadzenText Text="Results" TextStyle="TextStyle.Subtitle2" />
+}
+
+@if (isLoading)
+{
+	<p><em>Loading...</em></p>
+}
+else if (templates.Any())
+{
+	<RadzenRow Gap="0" class="rz-display-flex justify-content-center">
+		@foreach (var template in templates)
+		{
+			<RadzenColumn>
+				<NavLink class="text-decoration-none" href="@($"/form-create/{template.Id}")">
+					<RadzenCard Variant="Variant.Filled" Style="width: 25%; min-width: 280px;" class="rz-m-2 rz-border-radius-5">
+						<RadzenStack Orientation="Orientation.Vertical" Style="width: 100%;" Gap="0.5rem">
+							@if (!string.IsNullOrWhiteSpace(template.ImageUrl))
+							{
+								<img src="@template.ImageUrl" class="carousel-img" />
+							}
+							else
+							{
+								<RadzenCard Variant="Variant.Outlined" class="rz-border-radius-2">
+									<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+										<RadzenIcon Icon="photo" IconStyle="IconStyle.Base" Style="height:115px; width:100%; font-size:90px" />
+									</RadzenStack>
+								</RadzenCard>
+							}
+							<RadzenText Text="@template.Title" TextStyle="TextStyle.H6" />
+							<RadzenText Text="@template.Creator.FullName" TextStyle="TextStyle.Subtitle2" />
+						</RadzenStack>
+					</RadzenCard>
+				</NavLink>
+			</RadzenColumn>
+		}
+	</RadzenRow>
+}
+
+
+@code {
+	[Parameter]
+	[SupplyParameterFromQuery]
+	public string? Query { get; set; }
+
+	[Parameter]
+	[SupplyParameterFromQuery]
+	public string? TagId { get; set; }
+
+	private List<TemplateDisplayDto> templates = new();
+	private bool isLoading = true;
+	private string searchQuery = string.Empty;
+	private string? currentTagId;
+	private string tagName = string.Empty;
+
+	protected override async Task OnParametersSetAsync()
+	{
+		bool needsReload = false;
+
+		if (!string.IsNullOrWhiteSpace(Query) && Query != searchQuery)
+		{
+			searchQuery = Query;
+			currentTagId = null;
+			needsReload = true;
+		}
+		else if (!string.IsNullOrEmpty(TagId) && TagId != currentTagId)
+		{
+			currentTagId = TagId;
+			searchQuery = string.Empty;
+			needsReload = true;
+		}
+		else if (string.IsNullOrWhiteSpace(Query) && string.IsNullOrEmpty(TagId) && (string.IsNullOrEmpty(currentTagId) || !string.IsNullOrWhiteSpace(searchQuery)))
+		{
+			searchQuery = string.Empty;
+			currentTagId = null;
+			templates.Clear();
+			isLoading = false;
+			StateHasChanged();
+			return;
+		}
+		else if (Query == searchQuery && TagId == currentTagId && !templates.Any() && !isLoading)
+		{
+			return;
+		}
+
+		if (needsReload)
+		{
+			isLoading = true;
+			templates.Clear();
+			tagName = string.Empty;
+
+			if (!string.IsNullOrWhiteSpace(searchQuery))
+			{
+				templates = await TemplateSearchService.SearchTemplatesAsync(searchQuery);
+			}
+			else if (!string.IsNullOrEmpty(currentTagId))
+			{
+				templates = await TemplateSearchService.GetTemplatesByTagIdAsync(currentTagId);
+
+				var allTags = await TemplateSearchService.GetPopularTagsAsync(100);
+				var foundTag = allTags.FirstOrDefault(t => t.Id == Guid.Parse(currentTagId));
+				tagName = foundTag?.Name ?? "Unknown Tag";
+			}
+			isLoading = false;
+			StateHasChanged();
+		}
+	}
+}
+
+
+<style>
+	/* Uniform image size */
+	.carousel-img {
+		width: 100%;
+		min-width: 250px;
+		height: 150px;
+		object-fit: cover;
+		border-radius: 8px;
+	}
+
+</style>

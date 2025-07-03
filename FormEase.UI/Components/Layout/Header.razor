@@ -1,6 +1,7 @@
 ﻿@rendermode InteractiveServer
 @inject NavigationManager Navigation
 @inject DialogService DialogService
+@inject TemplateSearchService TemplateSearchService
 
 <RadzenHeader>
 
@@ -8,8 +9,9 @@
 		<RadzenButton Icon="menu" Click="@(OpenSideDialog)" Variant="Variant.Text" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Large" />
 		<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
 			<RadzenTextBox @bind-Value="@SearchTerm"
-						   @oninput="@((e) => UpdateSearchTerm(e.Value.ToString()))"
-						   Placeholder="Search..."
+						   @onkeyup="HandleSearchInput"
+						   
+						   Placeholder="Search templates..."
 						   Style="width: 100%;" />
 
 			<RadzenAppearanceToggle />
@@ -25,13 +27,30 @@
 
 @code {
 
-	public string SearchTerm { get; set; }
+	private string SearchTerm = string.Empty;
+
 	public EventCallback<string> SearchTermChanged { get; set; }
 
+	private void HandleSearchInput(KeyboardEventArgs e)
+	{
+		if (e.Code == "Enter")
+		{
+			PerformSearch();
+		}
+	}
+
+	private void PerformSearch()
+	{
+		if (!string.IsNullOrWhiteSpace(SearchTerm))
+		{
+			Navigation.NavigateTo($"/search?query={Uri.EscapeDataString(SearchTerm)}");
+		}
+	}
 
 	private async Task UpdateSearchTerm(string value)
 	{
 		SearchTerm = value;
+		var templates = await TemplateSearchService.SearchTemplatesAsync(SearchTerm);
 	}
 
 	private void OpenSideDialog()

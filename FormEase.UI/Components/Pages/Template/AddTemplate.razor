@@ -445,6 +445,7 @@
 	private async Task OnSubmit(TemplateCreateDto template)
 	{
 		template.CreatorId = UserId;
+		errorMessage = null;
 
 		var tempQuestions = questions.Select(q => q.Question).ToList();
 

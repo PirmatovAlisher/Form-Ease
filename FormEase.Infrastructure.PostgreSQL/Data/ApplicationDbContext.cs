@@ -5,6 +5,7 @@ using FormEase.Core.Models.WebApplication.MetadataModels;
 using FormEase.Core.Models.WebApplication.PermissionModels;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using NpgsqlTypes;
 using System.Reflection;
 
 namespace FormEase.Infrastructure.PostgreSQL.Data
